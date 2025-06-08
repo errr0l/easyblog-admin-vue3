@@ -1,0 +1,90 @@
+@use './reset.css';
+@use 'variables.module' as *;
+@use './transition.scss';
+@use './element-ui.scss';
+@use './sidebar.scss';
+@use './element-ui-cover.scss';
+
+.app-container {
+  padding: 15px;
+}
+
+.my-app-container {
+  height: calc(100vh - 50px);
+  box-sizing: border-box;
+}
+
+body {
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.unselectable {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.c-p {
+  cursor: pointer;
+}
+
+.mg-b-5 {
+  margin-bottom: 5px;
+}
+
+.mg-b-10 {
+  margin-bottom: 10px;
+}
+
+.mg-b-20 {
+  margin-bottom: 20px;
+}
+
+.f-r {
+  float: right;
+}
+
+.f-l {
+  float: left;
+}
+
+.t-c {
+  text-align: center;
+}
+
+.t-l {
+  text-align: left;
+}
+.t-r {
+  text-align: right;
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #fa7872;
+}
+.avatar-uploader-icon:hover {
+  color: #fa7872;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  text-align: center;
+}
+.avatar {
+  width: 120px;
+  height: 120px;
+  display: block;
+  object-fit: cover;
+}

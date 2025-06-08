@@ -1,0 +1,45 @@
+// 必须将文件名改为xxx.module.scss的格式才能向js暴露
+
+// sidebar
+// $menuText:#bfcbd9;
+// $menuText: var(--main-c);
+// $menuActiveText:#409EFF;
+// $menuActiveText: var(--c-2);
+// $subMenuActiveText:#f4f4f5; //https://github.com/ElemeFE/element/issues/12951
+// $subMenuActiveText: var(--c-2);
+
+// $menuBg:#304156;
+// $menuHover:#263445;
+$menuBg: #fff;
+// $menuHover: var(--c-2);
+// $menuHoverColor: #fff;
+
+// $subMenuBg:#1f2d3d;
+// $subMenuHover:#001528;
+// $subMenuABg: var(--c-2);
+// $subMenuBg: #fff;
+// $subMenuAC: #fff;
+// $subMenuHover: var(--c-2);
+// $subMenuHoverColor: #fff;
+
+$sideBarWidth: 210px;
+
+// color -> https://element.eleme.cn/#/zh-CN/component/color
+// $blue: #409EFF;
+// $success: #67C23A;
+// $warning: #E6A23C;
+// $danger: #F56C6C;
+// $gray: #909399;
+
+// the :export directive is the magic sauce for webpack
+// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
+:export {
+  // menuText: $menuText;
+  // menuActiveText: $menuActiveText;
+  // subMenuActiveText: $subMenuActiveText;
+   menuBg: $menuBg;
+  // menuHover: $menuHover;
+  // subMenuBg: $subMenuBg;
+  // subMenuHover: $subMenuHover;
+   sideBarWidth: $sideBarWidth;
+}
