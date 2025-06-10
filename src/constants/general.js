@@ -43,6 +43,8 @@ export const ADMIN = "admin"; // 管理员
 // 项目标识
 export const IDENTITY = "project=easyblog";
 
+export const EXCEPTION = "exception";
+export const SUCCESS = "success";
 // export default {
 //     ARTICLE_STATE_TEXTS, CREATION_TYPE_TEXTS,
 //     ORIGINAL, REPRINT,

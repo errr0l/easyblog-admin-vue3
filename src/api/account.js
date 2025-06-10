@@ -9,7 +9,7 @@ export function login(data) {
 }
 
 export async function refresh(data) {
-    return await request({
+    return request({
         url: '/account/refresh',
         method: 'post',
         data

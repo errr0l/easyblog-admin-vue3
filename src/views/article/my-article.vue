@@ -2,9 +2,9 @@
     <div class="app-container my-app-container">
         <el-card class="x-el-card-table el-card__header-sty-2">
             <template #header>
-                <el-form :inline="true" :model="query">
+                <el-form :inline="true" :model="query" size="small">
                     <el-form-item label="标题">
-                        <el-input v-model="query.title" placeholder="请输入" clearable></el-input>
+                        <el-input v-model="query.keyword" placeholder="请输入" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="分类">
                         <el-select v-model="query.categoryId" placeholder="请选择" clearable style="width: 172px">
@@ -60,12 +60,13 @@
                 </el-table-column>
                 <el-table-column align="center" label="状态" prop="state" width="120">
                     <template #="{ row }">
-                        <el-tag size="small" :effect="ARTICLE_STATE_CONFIG[row.state].effect || 'plain'" :type="ARTICLE_STATE_CONFIG[row.state].type || 'info'">{{ ARTICLE_STATE_CONFIG[row.state].text || "-" }}</el-tag>
+                        <span v-if="!row.state">-</span>
+                        <el-tag v-else size="small" :effect="ARTICLE_STATE_CONFIG[row.state].effect" :type="ARTICLE_STATE_CONFIG[row.state].type">{{ ARTICLE_STATE_CONFIG[row.state].text }}</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" label="类型" prop="creationType" width="120">
                     <template #="{ row }">
-                        <span>{{ CREATION_TYPE_CONFIG[row.creationType].text || "-" }}</span>
+                        <span>{{ CREATION_TYPE_CONFIG[row.creationType] ? CREATION_TYPE_CONFIG[row.creationType].text : "-" }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" label="创建时间" width="180">
@@ -104,13 +105,10 @@
 
 <script setup>
 import { onMounted, onActivated, inject, reactive, watch } from "vue";
+import { usePagination, useSubmit, useDel, useCancel, useRouter, useConfirm } from "@/composables/article";
+import { useList } from "@/composables/category";
+import { creationTypes, articleStates, DELETED, ARTICLE_STATE_CONFIG, CREATION_TYPE_CONFIG, PENDING, WAITING_FOR_AUDITING, WAITING_FOR_CONFIRMATION } from "./constants";
 
-import { getPagination } from "@/api/accountArticle";
-
-import { usePagination } from "../../composables/usePagination";
-import { useArticleList } from "./useArticleList";
-import { creationTypes, articleStates, DELETED, ARTICLE_STATE_CONFIG, CREATION_TYPE_CONFIG, PENDING, WAITING_FOR_AUDITING, WAITING_FOR_CONFIRMATION } from "./articleConstants";
-import { useCategory } from "./useCategory";
 // 查询参数
 const query = reactive({
     size: 10,
@@ -118,56 +116,24 @@ const query = reactive({
     categoryId: "",
     states: [],
     creationType: "",
-    title: "",
+    keyword: "",
     excludedState: DELETED
 });
 
-function setStatesIfNecessary(_query) {
-    if (_query && _query.states) {
-        _query.states = _query.states.join(",");
-    }
-}
-
-const { list, total, queryPagination, currentChange } = usePagination({
-    query,
-    getPagination,
-    queryHandlers: [setStatesIfNecessary],
-});
-
-const { submit, confirm, add, cancel, del, edit } = useArticleList({ getPagination: queryPagination });
-const { categoryList, queryCategoryList } = useCategory();
+const { list, total, queryPagination, currentChange, search } = usePagination({ query });
+const { submit } = useSubmit();
+const { confirm } = useConfirm();
+const { del } = useDel({ refresh: queryPagination });
+const { cancel } = useCancel();
+const { edit, add } = useRouter();
+const { list: categoryList, queryList } = useList();
 
 const getDefaultImage = inject('getDefaultImage');
-
 onMounted(() => {
-    queryCategoryList();
-});
-
-watch(() => query.states, (n, o) => {
-    if (n && n.includes(DELETED)) {
-        query.excludedState = "";
-    }
-    else {
-        query.excludedState = DELETED;
-    }
+    queryList();
 });
 
 onActivated(() => {
     queryPagination();
 });
-
-function search() {
-    query.current = 1;
-    queryPagination();
-}
 </script>
-
-<style>
-.demo-form-inline .el-input {
-    --el-input-width: 220px;
-}
-
-.demo-form-inline .el-select {
-    --el-select-width: 220px;
-}
-</style>

@@ -1,50 +1,5 @@
 import request from '@/utils/request';
 
-// 获取文章分类列表
-export function getCategoryList(data) {
-    return request({
-        url: '/category/list',
-        method: 'get',
-        params: data
-    });
-}
-
-// 获取文章分类分页
-export function getCategoryPagination(data) {
-    return request({
-        url: '/category/pagination',
-        method: 'get',
-        params: data
-    });
-}
-
-// 保存分类
-export function saveCategory(data) {
-    return request({
-        url: '/category/save',
-        method: 'post',
-        data
-    });
-}
-
-// 删除分类
-export function delCategory(data) {
-    return request({
-        url: '/category/del',
-        method: 'post',
-        data
-    });
-}
-
-// 更新分类
-export function updateCategory(data) {
-    return request({
-        url: '/category/update',
-        method: 'post',
-        data
-    });
-}
-
 // 保存文章
 export function save(data) {
     return request({

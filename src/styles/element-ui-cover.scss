@@ -24,6 +24,9 @@
     .el-input__inner {
         border: none !important;
     }
+    .el-input__wrapper {
+        box-shadow: none;
+    }
 }
 .x-el-input-padding-left-0.el-input {
     .el-input__inner {
@@ -32,6 +35,11 @@
 }
 .x-el-input-padding-left-0.el-textarea {
     .el-textarea__inner {
+        padding-left: 0;
+    }
+}
+.x-el-input-padding-left-0 {
+    .el-input__wrapper {
         padding-left: 0;
     }
 }
@@ -50,6 +58,10 @@
         flex-direction: column;
         overflow: hidden;
         flex: 1;
+
+        &>.el-table {
+            height: 100%;
+        }
     }
     &.el-card__body-pd-0 .el-card__body {
         padding: 0;

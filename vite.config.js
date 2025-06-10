@@ -1,8 +1,24 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
-import vueJsx from '@vitejs/plugin-vue-jsx'
-import path from "path";
+import vueJsx from '@vitejs/plugin-vue-jsx';
+import path from 'path';
+
+// 开发配置；
+// 在生产环境由nginx处理；
+import config from "./config/easyblog/config.json";
+function devConfig() {
+    return {
+        name: 'dev-config',
+        configureServer(server) {
+            // 在开发服务器中添加中间件
+            server.middlewares.use(`/easyblog/config.json`, (req, res) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(config));
+            });
+        }
+    };
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,6 +26,7 @@ export default defineConfig({
         vue(),
         vueJsx(),
         vueDevTools(),
+        devConfig(),
     ],
     esbuild: {
         loader: 'jsx'
@@ -26,5 +43,10 @@ export default defineConfig({
             // 限制哪些文件系统位置可以被访问
             allow: ['.', './config/'],
         },
+        proxy: {
+            "^/(image|temp)": {
+                target: config.HOST
+            }
+        }
     }
 });

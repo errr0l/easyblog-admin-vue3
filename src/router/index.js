@@ -98,7 +98,7 @@ export const asyncRoutes = [
                 }
             },
             {
-                path: '/category',
+                path: 'category',
                 component: () => import('@/views/article/category'),
                 meta: {
                     title: '分类管理'
@@ -106,7 +106,7 @@ export const asyncRoutes = [
             },
             {
                 path: '/article/editor',
-                component: () => import('@/views/article/editor2'),
+                component: () => import('@/views/article/editor'),
                 meta: {
                     title: '编辑',
                     activeMenu: "/article"
