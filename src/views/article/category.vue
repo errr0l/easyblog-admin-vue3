@@ -95,7 +95,7 @@ const { createHttpRequest, onSuccess } = useElUpload();
 const cover = ref("");
 const httpRequest = createHttpRequest({
     path: cover,
-    pathHandler: addIdentityForImagePath,
+    postHandler: addIdentityForImagePath,
     type: 2,
 });
 

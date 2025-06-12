@@ -34,9 +34,8 @@
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
 import { logout } from "@/api/account";
-import { useUserStore } from "../../store/user";
-import { useAppStore } from "../../store/app";
-import { defineComponent } from "vue";
+import { useUserStore } from "@/store/user";
+import { useAppStore } from "@/store/app";
 
 // const defaultImage = require('@/assets/404_images/404.png');
 import defaultImage from '@/assets/404_images/404.png';

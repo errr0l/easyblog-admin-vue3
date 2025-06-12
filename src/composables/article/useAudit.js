@@ -4,7 +4,12 @@ import { audit as _ } from "@/api/article";
 import { OPINION_APPROVAL } from "@/views/article/constants";
 import { reactive } from "vue";
 
-// 关于谁应该保持状态的问题：能自己保持就自己保持，像save和update，都用到了formData，所以应该在组件保持状态
+/**
+ * 文章审核处理模块；
+ * @param {Ref<Boolean>} dialogVisible 模态框显示控制
+ * @param {String|Number} id 文章id
+ * @returns {{audit: ((function(): Promise<void>)|*), formData: Reactive<{id, remarks: string, opinion: number}>}}
+ */
 export function useAudit({ dialogVisible, id }) {
     const { back } = useRouter();
     const defaultFormData = { id, remarks: "", opinion: OPINION_APPROVAL };

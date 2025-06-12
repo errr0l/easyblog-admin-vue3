@@ -14,14 +14,9 @@ export function useRouter() {
 
     // 返回
     function back() {
-        if (route.query.type === ADMIN) {
-            router.replace('/article/all');
-        }
-        else {
-            const meta = route.meta;
-            const activeMenu = meta.activeMenu;
-            router.replace(activeMenu ? activeMenu : '/article');
-        }
+        const meta = route.meta;
+        const activeMenu = meta.activeMenu;
+        router.replace(activeMenu ? activeMenu : '/article');
     }
 
     // 编辑

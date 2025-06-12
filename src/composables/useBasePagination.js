@@ -2,14 +2,14 @@ import { ref } from "vue";
 
 /**
  * 基本分页处理模块
- * @param {Object} query 查询参数
- * @param {Function} fetch 请求数据方法
- * @param {Array<Function>} preHandlers 前置处理器；可对query(副本)进行处理
- * @param postHandlers 后置处理器；可对请求结果进行处理
- * @returns {{total: Ref<UnwrapRef<number>, UnwrapRef<number> | number>, search: search, queryPagination: ((function(): Promise<void>)|*), list: [null] extends [Ref] ? IfAny<null, Ref<null>, null> : Ref<UnwrapRef<null>, UnwrapRef<null> | null>, currentChange: currentChange}}
+ * @param {Reactive<Object>} query 查询参数；
+ * @param {Function} fetch 请求数据方法；
+ * @param {Array<Function>} preHandlers 前置处理器；
+ * @param {Array<Function>} postHandlers 后置处理器；
+ * @returns {{ list: Ref<[]>, total: Ref<Number>, queryPagination: function(): Promise<void>, currentChange: Function, search: Function }}
  */
-export function useBasePagination({ query, fetch, preHandlers = [], postHandlers } = {}) {
-    const list = ref(null);
+export function useBasePagination({ query, fetch, preHandlers = [], postHandlers = [] } = {}) {
+    const list = ref([]);
     const total = ref(0);
     async function queryPagination() {
         const _query = { ...query };

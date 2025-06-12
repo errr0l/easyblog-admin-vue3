@@ -2,13 +2,15 @@ import { ref } from "vue";
 
 /**
  * 定时器处理模块；
- * @param callback
- * @param delay
- * @returns {{timer: [null] extends [Ref] ? IfAny<null, Ref<null>, null> : Ref<UnwrapRef<null>, UnwrapRef<null> | null>, clear: clear}}
+ * @returns {{timer: Ref<UnwrapRef<number>, UnwrapRef<number> | number>, start: start, clear: clear}}
  */
 export function useSetInterval() {
-    const timer = ref(null);
-
+    const timer = ref(0);
+    /**
+     * 运行
+     * @param {Function} callback 回调
+     * @param {Number} delay 间隔
+     */
     function start(callback, delay = 1000) {
         timer.value = setInterval(callback, delay);
     }

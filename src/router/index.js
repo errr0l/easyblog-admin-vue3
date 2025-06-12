@@ -119,8 +119,8 @@ export const asyncRoutes = [
                     if (from.meta.settingActiveMenu) {
                         to.meta.activeMenu = from.path;
                     }
-                        // 在编辑页面刷新时，from为/article，因此只能根据query中的参数进行判断；
-                        // 但这样也会存在问题，如果用户（管理员）把query删除，并刷新页面的话，将会导致高亮错误的页面（不过应该没人这么闲吧）；
+                    // 在编辑页面刷新时，from为/article，因此只能根据query中的参数进行判断；
+                    // 但这样也会存在问题，如果用户（管理员）把query删除，并刷新页面的话，将会导致高亮错误的页面（不过应该没人这么闲吧）；
                     // 而且也还有一个默认普通用户设置的兜底，所以这种情况应该没那么糟糕
                     else if (to.query.type === ADMIN) {
                         to.meta.activeMenu = "/article/all";

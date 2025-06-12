@@ -4,9 +4,6 @@ import { DELETED } from "@/views/article/constants";
 
 /**
  * 文章分页处理模块；
- * @param query
- * @param postHandlers
- * @returns {{total: Ref<UnwrapRef<number>, UnwrapRef<number> | number>, search: search, queryPagination: (function(): Promise<void>)|*, list: [null] extends [Ref] ? IfAny<null, Ref<null>, null> : Ref<UnwrapRef<null>, UnwrapRef<null> | null>, currentChange: currentChange}}
  */
 export function usePagination({ query, postHandlers = [] }) {
     return useBasePagination({

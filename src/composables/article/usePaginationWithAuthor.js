@@ -2,7 +2,11 @@ import { usePagination } from "./usePagination";
 import { useList } from "../user/useList";
 import { onMounted } from "vue";
 
-// 文章列表不返回作者名称，需要前端自己设置
+/**
+ * 获取文章分页处理模块；并且设置文章作者
+ * @param query
+ * @returns {{total: Ref<number>, search: Function, queryPagination: function(): Promise<void>, list: Ref<[]>, currentChange: Function, searchByState: Function}}
+ */
 export function usePaginationWithAuthor({ query }) {
     const { queryList, list: userList } = useList();
     let map = null;
@@ -33,12 +37,12 @@ export function usePaginationWithAuthor({ query }) {
         }
     }
     const { queryPagination, list, total, currentChange, search } = usePagination({ query, postHandlers: [setAuthor] });
-
     function searchByState(state) {
         query.states = [+state];
         search();
     }
-    onMounted(async () => {
+    onMounted(() => {
+        // 不加await好像也没什么问题
         queryList();
         queryPagination();
     });
