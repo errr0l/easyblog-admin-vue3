@@ -3,14 +3,15 @@ import { IDENTITY } from "@/constants/general";
 
 // 获取俩数字列表的差集
 export function getDifference(c1, c2) {
-    const result = [];
-    for (const c1Item of c1) {
-        const index = c2.findIndex(c2Item => c2Item === c1Item);
-        if (index === -1) {
-            result.push(c1Item);
-        }
-    }
-    return result;
+    // const result = [];
+    // for (const c1Item of c1) {
+    //     const index = c2.findIndex(c2Item => c2Item === c1Item);
+    //     if (index === -1) {
+    //         result.push(c1Item);
+    //     }
+    // }
+    return c1.filter(item => !c2.includes(item));
+    // return result;
 }
 
 export const emailRule = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)+$/;
@@ -32,6 +33,8 @@ export function copyProperties(source, target) {
             case "object":
                 target[key] = JSON.parse(JSON.stringify(value));
                 break;
+            default:
+                target[key] = value;
         }
     }
     return target;

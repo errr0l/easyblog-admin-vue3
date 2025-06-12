@@ -49,13 +49,13 @@ export const constantRoutes = [
         children: [
             {
                 path: '',
-                component: () => import('@/views/account/index'),
+                component: () => import('@/views/account'),
                 meta: {
                     title: '个人信息'
                 }
             },
             {
-                path: '/password',
+                path: 'password',
                 component: () => import('@/views/account/password'),
                 meta: {
                     title: '更换密码'

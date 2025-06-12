@@ -3,7 +3,7 @@ import { refresh } from "@/api/account";
 // import { Message, MessageBox } from "element-ui";
 import { ElMessage as Message, ElMessageBox as MessageBox } from "element-plus";
 import router from "@/router";
-import { useAppStore } from "../store/app";
+import { useAppStore } from "@/store/app";
 
 const maxRetryingCount = 3;
 const service = axios.create({
@@ -72,7 +72,7 @@ const notice = (type, resp) => {
 // 若url不是一http开头时，补充baseUrl；
 // 修改请求路径，以命中nginx中的配置；
 // 关于store，可以在每次使用时调用对应的方法（如useAppStore），但因为觉得比较繁琐，所以在这里调用了；
-const baseUrlInterceptor = config => {
+export const baseUrlInterceptor = config => {
     const store = useAppStore();
     if (config.url.startsWith("/")) {
         const _config = store.config;

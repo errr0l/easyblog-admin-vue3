@@ -1,5 +1,5 @@
 import { usePagination } from "./usePagination";
-import { useList } from "../user/useList";
+import { useList } from "../user";
 import { onMounted } from "vue";
 
 /**

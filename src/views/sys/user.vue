@@ -1,9 +1,9 @@
 <template>
     <div class="app-container my-app-container">
         <el-card class="x-el-card-table">
-            <div slot="header" class="clearfix">
-                <el-button type="primary" size="mini" @click="showDialogForAdding()">添加用户</el-button>
-            </div>
+            <template #header>
+                <el-button type="primary" size="small" @click="showDialogForAdding()">添加用户</el-button>
+            </template>
             <el-table :data="list" style="width: 100%;" border size="small">
                 <el-table-column label="序号"
                     type="index" align="center"
@@ -12,50 +12,50 @@
                 <el-table-column align="center" label="ID" width="80" prop="id"></el-table-column>
                 <el-table-column align="center" label="用户名" width="100" prop="username"></el-table-column>
                 <el-table-column align="center" label="头像" width="120" prop="avatar">
-                    <template slot-scope="{ row }">
+                    <template #="{ row }">
                         <el-image style="vertical-align: middle; height: 60px;"
                             :src="row.avatar ? row.avatar : getDefaultImage()" lazy
                             fit="cover"></el-image>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" label="状态" width="120">
-                    <template slot-scope="{ row }">
-                        <el-tag size="mini" v-if="row.state === 1">正常</el-tag>
-                        <el-tag size="mini" type="warning" v-else-if="row.state === 3">等待审核</el-tag>
-                        <el-tag size="mini" type="info" v-else>禁用中</el-tag>
+                    <template #="{ row }">
+                        <el-tag size="small" v-if="row.state === 1">正常</el-tag>
+                        <el-tag size="small" type="warning" v-else-if="row.state === 3">等待审核</el-tag>
+                        <el-tag size="small" type="info" v-else>禁用中</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" label="邮箱" width="240" prop="email"></el-table-column>
                 <!-- <el-table-column align="center" label="介绍" width="240" prop="introduction" /> -->
                 <el-table-column align="center" label="注册时间" width="240">
-                    <template slot-scope="{ row }">
+                    <template #="{ row }">
                         <span>{{ row.createdAt }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" label="操作" fixed="right" width="210">
-                    <template slot-scope="{ row }">
-                        <el-button type="text" size="mini" @click="showDialogForEditing(row)">编辑</el-button>
-                        <el-button type="text" size="mini" @click="showDialogForUpdatingPassword(row)">修改密码</el-button>
-                        <el-button type="text" class="x-el-button-text" size="mini" v-if="row.state === 1" @click="ban(row)">禁用</el-button>
-                        <el-button type="text" class="x-el-button-text" size="mini" v-else-if="row.state === 2" @click="activate(row)">激活</el-button>
-                        <el-button type="text" class="x-el-button-text" size="mini" v-else-if="row.state === 3" @click="approve(row)">通过</el-button>
-                        <el-button type="text" class="x-el-button-text" size="mini" @click="del(row)">删除</el-button>
+                    <template #="{ row }">
+                        <el-button link size="small" @click="showDialogForEditing(row)">编辑</el-button>
+                        <el-button link size="small" @click="showDialogForUpdatingPassword(row)">修改密码</el-button>
+                        <el-button link class="x-el-button-text" size="small" v-if="row.state === 1" @click="ban(row)">禁用</el-button>
+                        <el-button link class="x-el-button-text" size="small" v-else-if="row.state === 2" @click="activate(row)">激活</el-button>
+                        <el-button link class="x-el-button-text" size="small" v-else-if="row.state === 3" @click="activate(row)">通过</el-button>
+                        <el-button link class="x-el-button-text" size="small" @click="del(row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
 
-            <div style="text-align: right; margin-top: 10px;">
+            <div style="margin-top: 10px;">
                 <el-pagination
                     background
                     :page-size="query.size"
                     layout="prev, pager, next"
-                    :total="total">
+                    :total="total" style="float: right;">
                 </el-pagination>
             </div>
         </el-card>
 
-        <el-dialog :visible.sync="dialogVisible" title="新增/编辑用户" width="40%" class="x-el-dialog styl-1" size="mini">
-            <el-form :model="formData" label-width="80px" size="mini">
+        <el-dialog v-model="dialogVisible" title="新增/编辑用户" width="40%" class="x-el-dialog styl-1" size="small">
+            <el-form :model="formData" label-width="80px" size="small">
                 <el-form-item label="用户名">
                     <el-input v-model="formData.username" placeholder="请输入" />
                 </el-form-item>
@@ -73,38 +73,43 @@
                 </el-form-item>
                 <el-form-item label="角色">
                     <el-checkbox-group v-model="roleIds">
-                        <el-checkbox v-for="role of roleList" :label="role.id" :key="role.id">{{ role.name }}</el-checkbox>
+                        <el-checkbox v-for="role of roleList" :value="role.id" :key="role.id">{{ role.name }}</el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
             </el-form>
             <div style="text-align: right;">
-                <el-button size="mini" @click="dialogVisible = false">取消</el-button>
-                <el-button size="mini" type="primary" v-if="isEditing" @click="update">确定</el-button>
-                <el-button size="mini" type="primary" v-else @click="save">确定</el-button>
+                <el-button size="small" @click="hideDialog">取消</el-button>
+                <el-button size="small" type="primary" v-if="isEditing" @click="update">确定</el-button>
+                <el-button size="small" type="primary" v-else @click="save">确定</el-button>
             </div>
         </el-dialog>
-        <el-dialog :visible.sync="passwordDialogVisible" title="修改密码" width="40%" class="x-el-dialog styl-1" size="mini">
-            <el-form ref="elPasswordForm" :model="passwordFormData" :rules="passwordRules" label-width="80px" size="mini">
+        <el-dialog v-model="passwordDialogVisible" title="修改密码" width="40%" class="x-el-dialog styl-1" size="small">
+            <el-form ref="passwordFormRef" :model="passwordFormData" :rules="rules" label-width="80px" size="small">
                 <el-form-item label="密码" required prop="password">
-                    <el-input v-model="passwordFormData.password" placeholder="请输入" type="password" />
+                    <el-input v-model="passwordFormData.password" placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="确认密码" required prop="confirmation">
-                    <el-input v-model="passwordFormData.confirmation" placeholder="请输入" type="password" />
+                    <el-input v-model="passwordFormData.confirmation" placeholder="请输入" />
                 </el-form-item>
             </el-form>
             <div style="text-align: right;">
-                <el-button size="mini" @click="dialogVisible = false">取消</el-button>
-                <el-button size="mini" type="primary" @click="updatePassword">确定</el-button>
+                <el-button size="small" @click="hide">取消</el-button>
+                <el-button size="small" type="primary" @click="updatePassword">确定</el-button>
             </div>
         </el-dialog>
     </div>
 </template>
 
-<script>
-import { getPagination, save, del, update, updatePassword, updateState } from "@/api/user";
-import { getList, getRoleListByUserId } from "@/api/role";
-import { getDifference, copyProperties } from '@/utils/common.js';
+<script setup>
+import { usePagination, useUpdate, useDel, useSave, useDialog, useUpdateState, usePasswordDialog, useUpdatePassword } from "@/composables/user";
+import { useList, useUserRoleList } from "@/composables/role";
+import { onMounted, reactive, inject, ref, watch } from "vue";
+import { copyProperties, getDifference } from "@/utils/common";
 
+const query = reactive({
+    size: 10,
+    current: 1
+});
 const defaultFormData = {
     id: "",
     username: "",
@@ -114,170 +119,81 @@ const defaultFormData = {
     // nickname: "",
     introduction: ""
 };
-
 const defaultPasswordFormData = {
     id: "",
     password: "",
-    confimation: ""
+    confirmation: ""
 };
+const passwordFormData = reactive({ ...defaultPasswordFormData });
+const roleIds = ref([]);
+// 设置分配和移除的角色id
+function setAssigningAndRemoving() {
+    // dialogVisible.value = false;
+    hideDialog();
+    // 分别取<选中id&已分配id的差集>和<已分配id&选中id的差集>，分别表示分配项和移除项
+    formData.assigning = getDifference(roleIds.value, userRoleIds.value);
+    formData.removing = getDifference(userRoleIds.value, roleIds.value);
+}
+const formData = reactive({ ...defaultFormData });
 
-export default {
-    data() {
-        const sameValidator = (rule, value, callback) => {
-            if (value !== this.passwordFormData.password) {
-                callback(new Error('两次输入密码不一致!'));
+const { list, queryPagination, total } = usePagination({ query });
+const { update } = useUpdate({
+    formData,
+    refresh: queryPagination,
+    preHandlers: [setAssigningAndRemoving]
+});
+const { del } = useDel({ refresh: queryPagination });
+
+function setFormData(row) {
+    Object.assign(formData, copyProperties(row, { ...defaultFormData }))
+    queryUserRoleList(formData.id);
+}
+function resetFormData() {
+    Object.assign(formData, { ...defaultFormData });
+    userRoleList.value.length = 0;
+}
+
+const { dialogVisible, showDialogForAdding, showDialogForEditing, isEditing, hide: hideDialog } = useDialog({
+    formData, setFormData, resetFormData
+});
+
+const { save } = useSave({ formData, refresh: queryPagination, postHandlers: [hideDialog] });
+const { showDialogForUpdatingPassword, passwordDialogVisible, hide, show } = usePasswordDialog({ formData: passwordFormData, defaultFormData: defaultPasswordFormData });
+const { ban, activate } = useUpdateState({ refresh: queryPagination });
+const getDefaultImage = inject('getDefaultImage');
+const { queryList, list: roleList } = useList();
+const { queryUserRoleList, userRoleList, userRoleIds } = useUserRoleList();
+const passwordFormRef = ref(null);
+async function passwordFormDataValidator() {
+    const valid = await new Promise(resolve => {
+        passwordFormRef.value?.validate((valid) => {
+            resolve(valid);
+            if (!valid) {
+                return false;
             }
-            else {
-                callback();
-            }
-        }
-        return {
-            dialogVisible: false,
-            list: [], // table列表
-            formData: { ...defaultFormData },
-            isEditing: false,
-            userRoleList: [], // 用户角色列表
-            roleList: [], // 角色列表
-            roleIds: [],
-            total: 0,
-            query: {
-                size: 10,
-                current: 1
-            },
-            passwordFormData: { ...defaultPasswordFormData },
-            passwordDialogVisible: false,
-            passwordRules: {
-                password: [
-                    { required: true, message: '密码不能为空', trigger: 'blur' },
-                ],
-                confirmation: [
-                    { required: true, message: '确认密码不能为空', trigger: 'blur' },
-                    { validator: sameValidator, trigger: 'blur' }
-                ],
-            }
-        };
-    },
-    filters: {
-        stateFilter(value) {
-            return value === 1 ? '正常' : '禁用';
-        }
-    },
-    created() {
-        this.getPagination();
-        this.getList();  
-    },
-    methods: {
-        approve(row) {
-            this.updateState({ id: row.id, state: 1 });
-        },
-        ban(row) {
-            this.updateState({ id: row.id, state: 2 });
-        },
-        activate(row) {
-            this.updateState({ id: row.id, state: 1 });
-        },
-        async updateState(data) {
-            const resp = await updateState(data);
-            if (resp.code === 0) {
-                this.getPagination();
-                this.$message.success("操作成功");
-            }
-        },
-        showDialogForUpdatingPassword(row) {
-            this.passwordFormData.id = row.id;
-            this.passwordDialogVisible = true;
-        },
-        async updatePassword() {
-            this.$refs.elPasswordForm.validate(async (valid) => {
-                if (!valid) {
-                    return false;
-                }
-                const resp = await updatePassword(this.passwordFormData);
-                if (resp.code === 0) {
-                    this.passwordFormData = { ...defaultPasswordFormData };
-                    this.$message.success("操作成功");
-                    this.passwordDialogVisible = false;
-                }
-            });
-        },
-        async getPagination() {
-            const resp = await getPagination();
-            if (resp.code !== 0) {
-                return;
-            }
-            this.list = resp.data.records;
-            this.total = resp.data.total;
-        },
-        async getList() {
-            const resp = await getList();
-            if (resp.code !== 0) {
-                return;
-            }
-            this.roleList = resp.data;
-        },
-        async getRoleListByUserId(id) {
-            const resp = await getRoleListByUserId(id);
-            if (resp.code !== 0) {
-                return;
-            }
-            this.userRoleList = resp.data;
-            this.roleIds = this.userRoleList.map(item => item.id);
-        },
-        showDialogForAdding() {
-            this.isEditing = false;
-            this.dialogVisible = true;
-            this.formData = { ...defaultFormData };
-            this.roleIds = [];
-        },
-        async save() {
-            this.dialogVisible = false;
-            this.formData.assigning = this.roleIds;
-            const resp = await save(this.formData).catch((error) => {
-                console.log(error);
-            });
-            if (resp.code !== 0) {
-                return;
-            }
-            this.$message.success("操作成功");
-            this.getPagination();
-        },
-        showDialogForEditing(data) {
-            this.isEditing = true;
-            this.dialogVisible = true;
-            this.formData = copyProperties(data, { ...defaultFormData });
-            this.getRoleListByUserId(data.id);
-        },
-        async update() {
-            this.dialogVisible = false;
-            const roleIdsAssigned = this.userRoleList.map(item => item.id);
-            this.formData.assigning = getDifference(this.roleIds, roleIdsAssigned);
-            this.formData.removing = getDifference(roleIdsAssigned, this.roleIds);
-            const resp = await update(this.formData).catch(
-                (error) => {
-                    console.log(error);
-                }
-            );
-            if (resp.code !== 0) {
-                return;
-            }
-            this.$message.success("操作成功");
-            this.getPagination();
-        },
-        del(data) {
-            this.$confirm("确认删除吗？", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-            }).then(async () => {
-                const resp = await del({ id: data.id }).catch((error) => {
-                    console.log(error);
-                });
-                if (resp.code !== 0) {
-                    return;
-                }
-                this.$message.success("操作成功");
-                this.getPagination();
-            });
-        }
-    },
-};
+        });
+    });
+    if (!valid) {
+        throw new Error('表单校验未通过');
+    }
+}
+// 指示处理器以异步的方式运行
+passwordFormDataValidator._async = true;
+const { updatePassword, rules } = useUpdatePassword({
+    formData: passwordFormData,
+    preHandlers: [passwordFormDataValidator],
+    postHandlers: [hide]
+});
+
+watch(userRoleList, (_new) => {
+    roleIds.value = _new.map(item => item.id);
+});
+
+onMounted(() => {
+    queryPagination();
+    queryList();
+});
+window.addEventListener('error', (err) => {
+    console.log(err);
+});
 </script>

@@ -1,78 +1,87 @@
 <template>
-    <div class="item">
-        llll
+    <div class="app-container my-app-container">
+        <el-card class="x-el-card-table el-card__header-sty-1">
+            <div slot="header" class="clearfix">
+                <div style="display: flex;">
+                    <div style="flex: 1;">
+                        <el-input value="编辑信息" class="x-el-input-b-none" readonly>
+                            <i class="el-icon-edit el-input__icon" style="color: #606266;" slot="prefix"></i>
+                        </el-input>
+                    </div>
+                    <div class="acts">
+                        <el-button type="primary" size="small" @click="updateAccountInfo">保存</el-button>
+                    </div>
+                </div>
+            </div>
+            <div style="overflow-y: auto;">
+                <el-form :model="formData" label-width="80px" size="small">
+                    <el-form-item label="头像">
+                        <el-upload
+                            action=""
+                            class="avatar-uploader"
+                            :http-request="updateAvatar"
+                            :show-file-list="false"
+                            :on-success="onSuccess">
+                            <img v-if="formData.avatar" :src="formData.avatar" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                    </el-form-item>
+                    <el-form-item label="用户名" style="width: 40%;">
+                        <el-input v-model="formData.username" placeholder="请输入" />
+                    </el-form-item>
+                    <el-form-item label="邮箱" style="width: 40%;">
+                        <el-input v-model="formData.email" disabled />
+                    </el-form-item>
+                    <el-form-item label="个人介绍">
+                        <MdEditor v-model="formData.introduction" style="flex: 1;" @onUploadImg="onUploadImg" />
+                    </el-form-item>
+                </el-form>
+            </div>
+        </el-card>
     </div>
 </template>
+<script setup>
+import { useAccountInfo, useUpdateAvatar, useUpdateAccountInfo } from "@/composables/account";
+import { useReminder } from "@/composables/useReminder";
+import { onMounted, reactive, ref } from "vue";
+import { MdEditor } from 'md-editor-v3';
+import "md-editor-v3/lib/style.css";
+import { useMarkdownEditor } from "@/composables/useMarkdownEditor";
+import { addIdentityForImagePath } from "@/utils/common";
 
-<style scoped>
-.item {
-    margin-top: 2rem;
-    display: flex;
-    position: relative;
-}
+const defaultFormData = {
+    username: "",
+    email: "",
+    introduction: "",
+    avatar: ""
+};
+const formData = reactive({ ...defaultFormData });
+const { queryAccountInfo, original } = useAccountInfo({ formData });
 
-.details {
-    flex: 1;
-    margin-left: 1rem;
-}
+const { compare } = useReminder({ original, formData, keysChecked: Object.keys(defaultFormData) });
+const { updateAvatar, onSuccess } = useUpdateAvatar({ formData });
 
-i {
-    display: flex;
-    place-items: center;
-    place-content: center;
-    width: 32px;
-    height: 32px;
-    color: var(--color-text);
-}
+const image = ref("");
+const { createOnUploadImg } = useMarkdownEditor();
+const onUploadImg = createOnUploadImg({
+    path: image,
+    pathHandler: addIdentityForImagePath,
+    type: 2
+});
+const { updateAccountInfo } = useUpdateAccountInfo({
+    formData, refresh: queryAccountInfo, compare, original
+});
 
-h3 {
-    font-size: 1.2rem;
-    font-weight: 500;
-    margin-bottom: 0.4rem;
-    color: var(--color-heading);
-}
+onMounted(() => {
+    queryAccountInfo();
+});
+</script>
 
-@media (min-width: 1024px) {
-    .item {
-        margin-top: 0;
-        padding: 0.4rem 0 1rem calc(var(--section-gap) / 2);
-    }
-
-    i {
-        top: calc(50% - 25px);
-        left: -26px;
-        position: absolute;
-        border: 1px solid var(--color-border);
-        background: var(--color-background);
-        border-radius: 8px;
-        width: 50px;
-        height: 50px;
-    }
-
-    .item:before {
-        content: ' ';
-        border-left: 1px solid var(--color-border);
-        position: absolute;
-        left: 0;
-        bottom: calc(50% + 25px);
-        height: calc(50% - 25px);
-    }
-
-    .item:after {
-        content: ' ';
-        border-left: 1px solid var(--color-border);
-        position: absolute;
-        left: 0;
-        top: calc(50% + 25px);
-        height: calc(50% - 25px);
-    }
-
-    .item:first-of-type:before {
-        display: none;
-    }
-
-    .item:last-of-type:after {
-        display: none;
+<style lang="scss" scoped>
+.x-el-card-table {
+    .el-card__body {
+        padding-top: 40px;
+        padding-left: 0;
     }
 }
 </style>
