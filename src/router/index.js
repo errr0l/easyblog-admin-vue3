@@ -6,7 +6,7 @@ import { ADMIN } from "@/constants/general";
 export const constantRoutes = [
     {
         path: '/login',
-        component: () => import('@/views/login/index'),
+        component: () => import('@/views/auth/login'),
         hidden: true
     },
     {
@@ -27,12 +27,12 @@ export const constantRoutes = [
     },
     {
         path: "/oauth2/callback",
-        component: () => import("@/views/oauth2/callback"),
+        component: () => import("@/views/auth/oauth2/callback"),
         hidden: true
     },
     {
         path: "/register",
-        component: () => import("@/views/register"),
+        component: () => import("@/views/auth/register"),
         hidden: true
     },
     {
@@ -150,16 +150,7 @@ export const asyncRoutes = [
                     title: '站点资源管理',
                     cached: true,
                 }
-            },
-            {
-                path: '/site-asset/editor',
-                component: () => import('@/views/site-asset/editor'),
-                meta: {
-                    title: '编辑',
-                    activeMenu: "/site-asset"
-                },
-                hidden: true
-            },
+            }
         ]
     },
     {

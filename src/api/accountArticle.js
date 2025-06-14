@@ -88,3 +88,12 @@ export function confirm(data) {
         data
     });
 }
+
+// 恢复文章
+export function recover(data) {
+    return request({
+        url: `/account/article/recover`,
+        method: 'post',
+        data
+    });
+}

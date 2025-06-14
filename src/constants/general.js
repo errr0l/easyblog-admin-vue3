@@ -45,6 +45,7 @@ export const IDENTITY = "project=easyblog";
 
 export const EXCEPTION = "exception";
 export const SUCCESS = "success";
+export const OAUTH = "oauth";
 // export default {
 //     ARTICLE_STATE_TEXTS, CREATION_TYPE_TEXTS,
 //     ORIGINAL, REPRINT,

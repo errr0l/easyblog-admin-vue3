@@ -44,20 +44,20 @@ export function getDetail(id) {
     });
 }
 
-export function publish(data) {
-    return request({
-        url: `/app/article/publish`,
-        method: 'post',
-        data
-    });
-}
+// export function publish(data) {
+//     return request({
+//         url: `/app/article/publish`,
+//         method: 'post',
+//         data
+//     });
+// }
 
-export function getPublishingProgress() {
-    return request({
-        url: `/app/article/publishingProgress`,
-        method: 'get'
-    });
-}
+// export function getPublishingProgress() {
+//     return request({
+//         url: `/app/article/publishingProgress`,
+//         method: 'get'
+//     });
+// }
 
 export function getStatistic() {
     return request({
@@ -75,6 +75,6 @@ export function audit(data) {
 }
 
 // 保存草稿
-export function saveDraft(data) {
-    console.log('saveDraft：', data);
-}
+// export function saveDraft(data) {
+//     console.log('saveDraft：', data);
+// }

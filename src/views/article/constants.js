@@ -1,4 +1,4 @@
-const DRAFT = 0;
+export const DRAFT = 0;
 export const PENDING = 1;
 export const WAITING_FOR_AUDITING = 2;
 export const WAITING_FOR_CONFIRMATION = 3;

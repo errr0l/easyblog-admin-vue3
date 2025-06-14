@@ -5,11 +5,15 @@
  * @param {Array<Function>} postHandlers 后置处理器
  * @returns {(function(...[*]))|*}
  */
+export const INTERRUPTED = 1;
 export function useHandler({ func, preHandlers = [], postHandlers = [] }) {
     return async (...args) => {
         for (let handler of preHandlers) {
             // 可为处理器添加_async属性，以异步运行
-            handler._async ? await handler.apply(this, args) : handler.apply(this, args);
+            const result = handler._async ? await handler.apply(this, args) : handler.apply(this, args);
+            if (result === INTERRUPTED) {
+                return { code: INTERRUPTED, message: handler.message || '已中断执行' };
+            }
         }
         const result = await func.apply(this, args);
         for (let handler of postHandlers) {

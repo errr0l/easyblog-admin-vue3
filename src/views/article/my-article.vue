@@ -84,6 +84,7 @@
                         <el-button link size="small" v-if="row.state === PENDING" @click="submit(row)">提交审核</el-button>
                         <el-button link size="small" v-else-if="row.state === WAITING_FOR_AUDITING" @click="cancel(row)" type="warning">撤销</el-button>
                         <el-button link size="small" v-else-if="row.state === WAITING_FOR_CONFIRMATION" type="success" @click="confirm(row)">确认</el-button>
+                        <el-button link size="small" v-else-if="row.state === DELETED" @click="recover(row)">恢复</el-button>
                         <el-button link size="small" @click="edit(row)">编辑</el-button>
                         <el-button link class="x-el-button-text" type="danger" size="small" @click="del(row)">删除</el-button>
                     </template>
@@ -104,8 +105,8 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated, inject, reactive, watch } from "vue";
-import { usePagination, useSubmit, useDel, useCancel, useRouter, useConfirm } from "@/composables/article";
+import { onMounted, onActivated, inject, reactive } from "vue";
+import { usePagination, useSubmit, useDel, useCancel, useRouter, useConfirm, useRecover } from "@/composables/article";
 import { useList } from "@/composables/category";
 import { creationTypes, articleStates, DELETED, ARTICLE_STATE_CONFIG, CREATION_TYPE_CONFIG, PENDING, WAITING_FOR_AUDITING, WAITING_FOR_CONFIRMATION } from "./constants";
 
@@ -127,7 +128,7 @@ const { del } = useDel({ refresh: queryPagination });
 const { cancel } = useCancel();
 const { edit, add } = useRouter();
 const { list: categoryList, queryList } = useList();
-
+const { recover } = useRecover();
 const getDefaultImage = inject('getDefaultImage');
 onMounted(() => {
     queryList();

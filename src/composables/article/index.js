@@ -13,3 +13,4 @@ export * from "./useUpdate";
 export * from "./usePaginationWithAuthor";
 export * from "./useWatch";
 export * from "./useStatistic";
+export * from "./useRecover";

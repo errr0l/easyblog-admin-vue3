@@ -1,5 +1,5 @@
 // 表单提示处理模块；
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, isRef } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { ElMessageBox } from "element-plus";
 
@@ -11,6 +11,9 @@ export function useReminder({ keysChecked = [], original, formData }) {
         return (value === null || typeof value !== 'object' && typeof value !== 'function');
     }
     function compare(o1, o2) {
+        if (isRef(o2)) {
+            o2 = o2.value;
+        }
         const equal = 0;
         const notEqual = -1;
         // 跳过比较；比如，已经提交保存了的情况下
@@ -33,7 +36,7 @@ export function useReminder({ keysChecked = [], original, formData }) {
 
     function beforeUnloadHandler(e) {
         const r = compare(formData, original);
-        if (r === 0) {
+        if (r === -1) {
             e.preventDefault();
             e.returnValue = message;
             return e.returnValue;

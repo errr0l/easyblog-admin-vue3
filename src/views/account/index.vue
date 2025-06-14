@@ -58,7 +58,7 @@ const defaultFormData = {
 const formData = reactive({ ...defaultFormData });
 const { queryAccountInfo, original } = useAccountInfo({ formData });
 
-const { compare } = useReminder({ original, formData, keysChecked: Object.keys(defaultFormData) });
+const { compare } = useReminder({ original: original, formData, keysChecked: Object.keys(defaultFormData) });
 const { updateAvatar, onSuccess } = useUpdateAvatar({ formData });
 
 const image = ref("");

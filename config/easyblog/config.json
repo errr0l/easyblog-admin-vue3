@@ -2,8 +2,8 @@
     "HOST": "http://localhost",
     "PREFIX": "/easyblog/admin",
     "OAUTH": {
-        "OAUTH_REDIRECT_URI": "http://localhost:9528/easyblog/admin/#/oauth2/callback",
-        "OAUTH_AUTHORIZATION_URI": "http://192.168.3.31/ya/oauth2/authorize",
-        "OAUTH_CLIENT_ID": "3"
+        "OAUTH_REDIRECT_URI": "http://localhost:5173/#/oauth2/callback",
+        "OAUTH_AUTHORIZATION_URI": "http://localhost:8111/oauth2/authorize",
+        "OAUTH_CLIENT_ID": "1"
     }
 }
