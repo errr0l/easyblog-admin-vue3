@@ -30,6 +30,13 @@ export function checkEmail(email) {
     });
 }
 
+export function getCaptcha() {
+    return request({
+        url: '/captcha/',
+        method: 'get'
+    });
+}
+
 // 检查邮箱【注册时】
 export function checkUsername(username) {
     return request({

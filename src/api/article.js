@@ -44,21 +44,6 @@ export function getDetail(id) {
     });
 }
 
-// export function publish(data) {
-//     return request({
-//         url: `/app/article/publish`,
-//         method: 'post',
-//         data
-//     });
-// }
-
-// export function getPublishingProgress() {
-//     return request({
-//         url: `/app/article/publishingProgress`,
-//         method: 'get'
-//     });
-// }
-
 export function getStatistic() {
     return request({
         url: `/article/statistic`,

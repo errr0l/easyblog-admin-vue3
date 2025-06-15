@@ -2,7 +2,7 @@ import { ref } from "vue";
 
 /**
  * 定时器处理模块；
- * @returns {{timer: Ref<UnwrapRef<number>, UnwrapRef<number> | number>, start: start, clear: clear}}
+ * @returns {{timer: Ref<UnwrapRef<number>, UnwrapRef<number> | number>, start: Function, clear: Function}}
  */
 export function useSetInterval() {
     const timer = ref(0);

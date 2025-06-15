@@ -14,10 +14,11 @@
 </template>
 
 <script setup>
-import logo from "@/assets/images/logo.jpg";
 import { useSettingsStore } from "@/store/settings";
+
 const settingsStore = useSettingsStore();
-const title = settingsStore.title;
+const { logo, title } = settingsStore;
+
 defineProps({
     collapse: {
         type: Boolean,

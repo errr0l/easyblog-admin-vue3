@@ -15,7 +15,7 @@ import SidebarItem from "./SidebarItem";
 import variables from "@/styles/variables.module.scss";
 import { useAppStore } from "@/store/app";
 import { mapState } from 'pinia';
-import { useSettingsStore } from "../../../store/settings";
+import { useSettingsStore } from "@/store/settings";
 
 export default {
     data() {

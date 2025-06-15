@@ -6,3 +6,4 @@ export * from "./useOauth2Register";
 export * from "./useSendEmailCode";
 export * from "./useCheckEmail";
 export * from "./useCheckUsername";
+export * from "./useLogout";

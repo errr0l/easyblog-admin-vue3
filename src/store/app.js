@@ -5,10 +5,11 @@ import Cookies from "js-cookie";
 import { useUserStore } from "./user";
 import { usePermissionStore } from "./permission";
 
+const sidebarStatus = Cookies.get("sidebarStatus");
 export const useAppStore = defineStore("app", {
     state: () => ({
         sidebar: {
-            opened: Cookies.get("sidebarStatus") ? !!+Cookies.get("sidebarStatus") : true,
+            opened: sidebarStatus ? !!+sidebarStatus : true,
             withoutAnimation: false
         },
         device: "desktop",

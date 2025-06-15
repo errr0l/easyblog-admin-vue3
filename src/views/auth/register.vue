@@ -26,7 +26,7 @@
                         </div>
                         <div style="display: flex; align-items: center;">
                             <input class="input-1" style="flex: 1;" v-model="formData.email" placeholder="邮箱" type="text">
-                            <span style="display: flex; align-items: center; margin-left: 10px; cursor: pointer; height: 28px; font-size: 13px; color: #fa7872;" @click="sendEmailCode" v-text="btnText"></span>
+                            <span :class="['btn-send', disabled ? 'disabled' : '']" @click="sendEmailCode" v-text="btnText"></span>
                         </div>
                         <div>
                             <input class="input-1" style="width: 50%;" v-model="formData.captcha" placeholder="验证码" type="text">
@@ -40,7 +40,7 @@
                     <div class="item forget mg-b-20">
                         <p>
                             <span class="c-p link">已有账号? </span>
-                            <span style="color: rgb(250, 120, 114); cursor: pointer;" @click="toLogin">登陆</span>
+                            <span class="btn-login" @click="toLogin">登陆</span>
                         </p>
                     </div>
                     <div class="item mg-b-5">
@@ -105,7 +105,7 @@ function initialize(code) {
     }
 }
 const { checkEmail } = useCheckEmailHandler();
-const { sendEmailCode, btnText } = useSendEmailCode({ formData, preHandlers: [checkEmail] });
+const { sendEmailCode, btnText, disabled } = useSendEmailCode({ formData, preHandlers: [checkEmail] });
 
 onMounted(() => {
     const { from, code } = route.query;
@@ -114,9 +114,6 @@ onMounted(() => {
     }
 });
 </script>
-
-<style lang="scss">
-</style>
 
 <style lang="scss" scoped>
 .captcha {
@@ -232,5 +229,17 @@ onMounted(() => {
 .no-account {
     color: #909399;
     font-size: 12px;
+}
+
+.btn-login {
+    color: rgb(250, 120, 114);
+    cursor: pointer;
+}
+.btn-send {
+    display: flex; align-items: center; margin-left: 10px; cursor: pointer; height: 28px; font-size: 13px; color: #fa7872;
+}
+.btn-send.disabled {
+    color: #bfbfbf;
+    cursor: not-allowed;
 }
 </style>

@@ -57,25 +57,3 @@ export function updatePassword(data) {
         data
     });
 }
-
-// 检查邮箱【注册时】
-export function checkEmail(email) {
-    return request({
-        url: '/account/checkEmail',
-        method: 'get',
-        params: {
-            email
-        }
-    });
-}
-
-// 检查邮箱【注册时】
-export function checkUsername(username) {
-    return request({
-        url: '/account/check/username',
-        method: 'get',
-        params: {
-            username
-        }
-    });
-}

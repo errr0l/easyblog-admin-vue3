@@ -1,4 +1,4 @@
-import { getCaptcha as _ } from "@/api/captcha";
+import { getCaptcha as _ } from "@/api/auth";
 import { reactive } from "vue";
 
 export function useCaptcha() {

@@ -1,62 +1,31 @@
 <template>
     <div :class="classObj" class="app-wrapper">
-        <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-        <sidebar class="sidebar-container" />
+        <Sidebar class="sidebar-container" />
         <div class="main-container">
             <div :class="{'fixed-header':fixedHeader}">
-                <navbar />
+                <Navbar />
             </div>
-            <app-main />
+            <AppMain />
         </div>
     </div>
 </template>
 
-<script>
+<script setup>
 import { Navbar, Sidebar, AppMain } from "./components";
-import ResizeMixin from "./mixin/ResizeHandler";
-
 import { useAppStore } from "@/store/app";
-import { useSettingsStore } from "../store/settings";
+import { useSettingsStore } from "@/store/settings";
+import { computed } from "vue";
 
-export default {
-    data() {
-        const appStore = useAppStore();
-        const settingsStore = useSettingsStore();
-        return { appStore, settingsStore };
-    },
-    components: {
-        Navbar,
-        Sidebar,
-        AppMain,
-    },
-    mixins: [ResizeMixin],
-    computed: {
-        sidebar() {
-            return this.appStore.sidebar;
-        },
-        device() {
-            return this.appStore.device;
-        },
-        fixedHeader() {
-            return this.settingsStore.fixedHeader;
-        },
-        classObj() {
-            return {
-                hideSidebar: !this.sidebar.opened,
-                openSidebar: this.sidebar.opened,
-                withoutAnimation: this.sidebar.withoutAnimation,
-                mobile: this.device === "mobile",
-            };
-        },
-    },
-    methods: {
-        handleClickOutside() {
-            this.settingsStore.closeSideBar({
-                withoutAnimation: false,
-            });
-        },
-    },
-};
+const appStore = useAppStore();
+const settingsStore = useSettingsStore();
+const fixedHeader = computed(() => settingsStore.fixedHeader);
+const classObj = computed(() => {
+    return {
+        hideSidebar: !appStore.sidebar.opened,
+        openSidebar: appStore.sidebar.opened,
+        withoutAnimation: appStore.sidebar.withoutAnimation
+    };
+});
 </script>
 
 <style lang="scss" scoped>

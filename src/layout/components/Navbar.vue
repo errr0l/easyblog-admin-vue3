@@ -1,87 +1,55 @@
 <template>
     <div class="navbar">
         <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-
         <breadcrumb class="breadcrumb-container" />
-
         <div class="right-menu">
             <div class="username x-el-button-text">
                 <el-link>你好，</el-link>
-                <el-link type="primary">{{username}}</el-link>
+                <el-link type="primary">{{ username }}</el-link>
             </div>
             <el-dropdown class="avatar-container" trigger="click">
                 <div class="avatar-wrapper">
-                    <img :src="avatar || getDefaultImage()" class="user-avatar">
+                    <img :src="avatar" class="user-avatar">
                     <i class="el-icon-caret-bottom" />
                 </div>
-                <el-dropdown-menu slot="dropdown" class="user-dropdown">
-                    <router-link to="/">
-                        <el-dropdown-item>
-                            主页
+                <template #dropdown>
+                    <el-dropdown-menu class="user-dropdown">
+                        <router-link to="/">
+                            <el-dropdown-item>
+                                主页
+                            </el-dropdown-item>
+                        </router-link>
+                        <el-dropdown-item divided @click.native="logout">
+                            <span style="display:block;">登出</span>
                         </el-dropdown-item>
-                    </router-link>
-                    <el-dropdown-item divided @click.native="logout">
-                        <span style="display:block;">登出</span>
-                    </el-dropdown-item>
-                </el-dropdown-menu>
+                    </el-dropdown-menu>
+                </template>
             </el-dropdown>
         </div>
     </div>
 </template>
 
-<script>
-// import { mapGetters } from "vuex";
+<script setup>
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
-import { logout } from "@/api/account";
 import { useUserStore } from "@/store/user";
 import { useAppStore } from "@/store/app";
-
-// const defaultImage = require('@/assets/404_images/404.png');
 import defaultImage from '@/assets/404_images/404.png';
+import { computed } from "vue";
+import { useLogout } from "@/composables/auth";
 
-export default {
-    data() {
-        return {
-            userStore: useUserStore(),
-            appStore: useAppStore()
-        };
-    },
-    components: {
-        Breadcrumb,
-        Hamburger,
-    },
-    computed: {
-        // ...mapGetters(["sidebar"]),
-        sidebar() {
-            return this.appStore.sidebar
-        },
-        avatar() {
-            const avatar = this.userStore.user.avatar;
-            return avatar ? avatar : defaultImage;
-        },
-        username() {
-            return this.userStore.user.username || "";
-        }
-    },
-    methods: {
-        toggleSideBar() {
-            // this.$store.dispatch("app/toggleSideBar");
-            this.appStore.toggleSideBar();
-        },
-        logout() {
-            this.$confirm("确认登出系统？", "提示")
-                .then(async () => {
-                    await logout();
-                    // await this.$store.dispatch("user/logout");
-                    this.useStore.logout();
-                    this.$router.push(`/login`);
-                }).catch(() => {
-                    console.log('cancel');
-                })
-        },
-    },
-};
+const userStore = useUserStore();
+const appStore = useAppStore();
+
+const sidebar = computed(() => appStore.sidebar);
+const avatar = computed(() => {
+    const avatar = userStore.user.avatar;
+    return avatar ? avatar : defaultImage;
+});
+const username = computed(() => userStore.user.username || "");
+
+const toggleSideBar = () => appStore.toggleSideBar();
+const { logout } = useLogout();
 </script>
 
 <style lang="scss" scoped>
