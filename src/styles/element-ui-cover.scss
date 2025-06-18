@@ -81,6 +81,13 @@
     }
 }
 
+.x-el-breadcrumb {
+    &.font-weight-normal .el-breadcrumb__inner a {
+        font-weight: normal;
+        color: var(--el-color-primary);
+    }
+}
+
 .x-el-dialog {
     &.styl-1 .el-dialog__body {
         padding: 20px;

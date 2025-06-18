@@ -3,10 +3,13 @@ import { reactive } from "vue";
 import { EXCEPTION, SUCCESS } from "@/constants/general";
 
 export function usePublishProgress(clear) {
-    const progress = reactive({
+    const defaultProgress = {
         status: "",
         percentage: 0,
         message: ""
+    };
+    const progress = reactive({
+        ...defaultProgress
     });
     async function getPublishProgress() {
         const resp = await _();
@@ -27,5 +30,9 @@ export function usePublishProgress(clear) {
         }
     }
 
-    return { progress, getPublishProgress };
+    function resetProgress() {
+        Object.assign(progress, defaultProgress);
+    }
+
+    return { progress, getPublishProgress, resetProgress };
 }

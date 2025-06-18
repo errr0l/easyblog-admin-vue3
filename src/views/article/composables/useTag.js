@@ -20,10 +20,15 @@ export function useTag({ formData }) {
     // 添加标签；
     function addTag() {
         if (tag.value) {
-            formData.tag += `,${tag.value}`;
+            if (formData.tag) {
+                formData.tag += `,${tag.value}`;
+            }
+            else {
+                formData.tag = tag.value;
+            }
+            tag.value = '';
         }
         tagInputVisible.value = false;
-        tag.value = '';
     }
     function showTagInput() {
         tagInputVisible.value = true;

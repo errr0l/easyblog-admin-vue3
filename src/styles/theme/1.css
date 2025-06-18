@@ -7,3 +7,7 @@
     --el-color-primary-light-8: #fff2f1;
     --el-color-primary-light-9: #fff2f1;
 }
+
+.sidebar-title {
+    color: var(--el-color-primary);
+}

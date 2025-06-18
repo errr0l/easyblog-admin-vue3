@@ -16,6 +16,9 @@ export function useDel({ refresh, type = USER }) {
                 resp = deleted ? await _doDel({ id: row.id }) : await _del({ id: row.id });
             }
             else {
+                if (deleted) {
+                    return;
+                }
                 resp = await __del({ id: row.id });
             }
             if (resp?.code === 0) {

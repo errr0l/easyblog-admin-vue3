@@ -83,7 +83,7 @@
                     <template #="{ row }">
                         <el-button link size="small" v-if="row.state === PENDING" @click="submit(row)">提交审核</el-button>
                         <el-button link size="small" v-else-if="row.state === WAITING_FOR_AUDITING" @click="cancel(row)" type="warning">撤销</el-button>
-                        <el-button link size="small" v-else-if="row.state === WAITING_FOR_CONFIRMATION" type="success" @click="confirm(row)">确认</el-button>
+                        <el-button link size="small" v-else-if="row.state === WAITING_FOR_CONFIRMATION" type="primary" @click="confirm(row)">确认</el-button>
                         <el-button link size="small" v-else-if="row.state === DELETED" @click="recover(row)">恢复</el-button>
                         <el-button link size="small" @click="edit(row)">编辑</el-button>
                         <el-button link class="x-el-button-text" type="danger" size="small" @click="del(row)">删除</el-button>

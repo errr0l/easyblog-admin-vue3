@@ -28,15 +28,8 @@ export function useDetail({ formData, id, type }) {
     async function queryDetail(id) {
         let resp = type === USER ? await _(id) : await __(id);
         if (resp?.code === 0) {
-            if (resp.data.creationType) {
-                resp.data.creationType = +resp.data.creationType;
-            }
-            if (resp.data.commentable) {
-                resp.data.commentable = +resp.data.commentable;
-            }
-            if (!formData.creationType) {
-                formData.creationType = ORIGINAL;
-            }
+            resp.data.creationType = resp.data.creationType ? +resp.data.creationType : ORIGINAL;
+            resp.data.commentable = resp.data.commentable ? +resp.data.commentable : 0;
             Object.assign(formData, resp.data);
             Object.assign(original, resp.data);
         }

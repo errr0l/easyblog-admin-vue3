@@ -4,14 +4,15 @@ import { useSetInterval } from "../useSetInterval";
 import { usePublishProgress } from "./usePublishProgress";
 
 // 发布文章；发布时，从服务器读取进度
+// toRemote表示要推送到基于git的远程仓库（github pages，或其他同类型的远程仓库）；force表示要强制生成文章（不管更新与否）
 export function usePublish({ dialogVisible, progressDialogVisible }) {
     const defaultFormData = {
-        toGithub: 1,
+        toRemote: 1,
         force: 0
     };
     const formData = reactive({ ...defaultFormData });
     const { start, clear } = useSetInterval();
-    const { getPublishProgress, progress } = usePublishProgress(clear);
+    const { getPublishProgress, progress, resetProgress } = usePublishProgress(clear);
     async function publish() {
         dialogVisible.value = false;
         const resp = await _(formData);
@@ -21,5 +22,5 @@ export function usePublish({ dialogVisible, progressDialogVisible }) {
         }
     }
 
-    return { publish, formData, progress };
+    return { publish, formData, progress, resetProgress };
 }

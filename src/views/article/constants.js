@@ -70,11 +70,11 @@ export const CREATION_TYPE_CONFIG = {
 export const OPINION_CONFIG = {
     [OPINION_APPROVAL]: {
         text: '通过',
-        value: 0
+        value: OPINION_APPROVAL
     },
     [OPINION_REJECTION]: {
         text: '不通过',
-        value: 1
+        value: OPINION_REJECTION
     }
 };
 

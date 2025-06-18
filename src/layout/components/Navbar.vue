@@ -1,7 +1,7 @@
 <template>
     <div class="navbar">
         <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-        <breadcrumb class="breadcrumb-container" />
+        <breadcrumb class="breadcrumb-container x-el-breadcrumb font-weight-normal" />
         <div class="right-menu">
             <div class="username x-el-button-text">
                 <el-link>你好，</el-link>

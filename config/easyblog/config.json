@@ -1,5 +1,4 @@
 {
-    "HOST": "http://localhost",
     "PREFIX": "/easyblog/admin",
     "OAUTH": {
         "OAUTH_REDIRECT_URI": "http://localhost:5173/#/oauth2/callback",

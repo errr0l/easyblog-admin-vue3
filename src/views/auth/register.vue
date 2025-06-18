@@ -32,11 +32,6 @@
                             <input class="input-1" style="width: 50%;" v-model="formData.captcha" placeholder="验证码" type="text">
                         </div>
                     </div>
-                    <!-- <div class="item" style="margin-bottom: 15px;">
-                        <div class="captcha-wrapper" style="height: 30px;">
-                            <p style="cursor: pointer; height: 28px; font-size: 13px; color: #fa7872;" @click="refreshCaptcha">点击获取验证码</p>
-                        </div>
-                    </div> -->
                     <div class="item forget mg-b-20">
                         <p>
                             <span class="c-p link">已有账号? </span>

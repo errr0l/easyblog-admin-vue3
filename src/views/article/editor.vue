@@ -87,13 +87,13 @@
                 <el-button type="primary" size="small" @click="saveOrUpdate" v-if="type === USER">确定</el-button>
             </div>
         </el-dialog>
-        <el-dialog :visible.sync="auditingDialogVisible" title="审核" width="40%" class="x-el-dialog styl-1">
+        <el-dialog v-model="auditingDialogVisible" title="审核" width="40%" class="x-el-dialog styl-1">
             <el-form :model="auditFormData" label-width="80px" size="small">
                 <el-form-item label="文章设置">
                     <el-button @click="settingsDialogVisible = true" size="small" plain type="primary">查看</el-button>
                 </el-form-item>
                 <el-form-item label="意见">
-                    <el-radio v-model="auditFormData.opinion" v-for="(value, key) in OPINION_CONFIG" :label="value">{{ key }}</el-radio>
+                    <el-radio v-model="auditFormData.opinion" v-for="item in opinionsSorted" :label="item.value" :key="item.value">{{ item.text }}</el-radio>
                 </el-form-item>
                 <el-form-item label="备注">
                     <el-input v-model="auditFormData.remarks" placeholder="请输入" />
@@ -119,9 +119,9 @@ import { useMarkdownEditor } from "@/composables/useMarkdownEditor";
 import { useDetail, useAudit, useSaveDraft, useSave, useUpdate, useDialog, useRouter as useArticleRouter } from "@/composables/article";
 import { useList } from "@/composables/category";
 import { useImportMdStyle } from "./composables/useImportMdStyle";
+// import { useDebouncedRef } from "@/composables/useDebouncedRef";
 
 const route = useRoute();
-
 const defaultFormData = {
     id: "",
     title: "",
@@ -142,7 +142,7 @@ const skipComparison = ref(false);
 const formData = reactive({ ...defaultFormData });
 const { original } = useDetail({ formData, id, type });
 const { auditingDialogVisible, settingsDialogVisible } = useDialog();
-const { audit, auditFormData } = useAudit({ dialogVisible: auditingDialogVisible, id });
+const { audit, formData: auditFormData } = useAudit({ dialogVisible: auditingDialogVisible, id });
 const { saveDraft } = useSaveDraft({ formData, skipComparison });
 const { save } = useSave({ formData, skipComparison });
 const { update } = useUpdate({ formData, skipComparison });
@@ -170,7 +170,10 @@ const isReprint = computed(() => formData.creationType === REPRINT);
 function saveOrUpdate() {
     formData.id ? update() : save();
 }
+const opinionsSorted = Object.values(OPINION_CONFIG).sort((a, b) => b.value - a.value);
 useImportMdStyle(type);
+
+// const content = useDebouncedRef(formData.content, 2000);
 // 同步cover
 watch(cover, () => {
     formData.cover = cover.value;
@@ -181,7 +184,7 @@ watch(cover, () => {
 :deep(#preview-only-preview) {
     padding: 15px 20px;
 }
-:deep(.md-editor-preview-wrapper) {
-    overflow: visible;
-}
+/*:deep(.md-editor-preview-wrapper) {*/
+/*    overflow: visible;*/
+/*}*/
 </style>

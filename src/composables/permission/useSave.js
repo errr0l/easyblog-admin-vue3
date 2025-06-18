@@ -2,12 +2,12 @@ import { save as _ } from "@/api/permission";
 import { ElMessage } from "element-plus";
 import { ref } from "vue";
 
-export function useSave({ formData, refresh }) {
+export function useSave({ formData, refresh, dialogVisible }) {
 
     // 记录上一次添加的权限类型
     const lastPermissionType = ref("");
     async function save() {
-        this.dialogVisible = false;
+        dialogVisible.value = false;
         const resp = await _(formData).catch((error) => {
             console.log(error);
         });

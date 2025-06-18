@@ -1,13 +1,18 @@
 <template>
     <div class="sidebar-logo-container" :class="{'collapse':collapse}">
+<!--    <div class="sidebar-logo-container" :class="[collapse ? 'collapse' : 'expanded']">-->
         <transition name="sidebarLogoFade">
-            <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
+<!--            <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">-->
+<!--                <img v-if="logo" :src="logo" class="sidebar-logo">-->
+<!--                <h1 v-else class="sidebar-title">{{ title }} </h1>-->
+<!--            </router-link>-->
+<!--            <router-link v-else key="expand" class="sidebar-logo-link" to="/">-->
+<!--                <img v-if="logo" :src="logo" class="sidebar-logo">-->
+<!--                <h1 class="sidebar-title">{{ title }} </h1>-->
+<!--            </router-link>-->
+            <router-link class="sidebar-logo-link" to="/">
                 <img v-if="logo" :src="logo" class="sidebar-logo">
-                <h1 v-else class="sidebar-title">{{ title }} </h1>
-            </router-link>
-            <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-                <img v-if="logo" :src="logo" class="sidebar-logo">
-                <h1 class="sidebar-title">{{ title }} </h1>
+                <h1 v-if="!collapse" class="sidebar-title">{{ title }} </h1>
             </router-link>
         </transition>
     </div>
@@ -28,19 +33,23 @@ defineProps({
 </script>
 
 <style lang="scss" scoped>
-.sidebarLogoFade-enter-active {
-    transition: opacity 1.5s;
-}
-
-.sidebarLogoFade-enter,
-.sidebarLogoFade-leave-to {
-    opacity: 0;
-}
+//.sidebarLogoFade-enter-active {
+//    transition: opacity 1.5s;
+//}
+//
+//.sidebarLogoFade-enter,
+//.sidebarLogoFade-leave-to {
+//    opacity: 0;
+//}
 
 .sidebar-logo-container.collapse {
     padding: 0;
     text-align: center;
 }
+
+//.sidebar-logo-container.expanded {
+//    padding: 0 20px;
+//}
 
 .sidebar-logo-container {
     position: relative;
@@ -54,6 +63,7 @@ defineProps({
     padding: 0 20px;
     overflow: hidden;
     border-bottom: 1px solid rgb(0 21 41 / 8%);
+    transition: padding 0.3s ease-out;
     // box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
     // z-index: 1;
 
@@ -73,7 +83,6 @@ defineProps({
             display: inline-block;
             margin: 0;
             // color: #fff;
-            color: #fa7872;
             font-weight: 600;
             line-height: 50px;
             font-size: 14px;

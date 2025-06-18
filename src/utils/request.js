@@ -76,7 +76,8 @@ export const baseUrlInterceptor = config => {
     const store = useAppStore();
     if (config.url.startsWith("/")) {
         const _config = store.config;
-        config.url = `${_config.HOST}/0${_config.PREFIX}${config.url}`;
+        // config.url = `${_config.HOST}/0${_config.PREFIX}${config.url}`;
+        config.url = `/0${_config.PREFIX}${config.url}`;
     }
     return config;
 };
@@ -183,8 +184,10 @@ service.interceptors.response.use(
             return respHandler(error.response);
         }
 
+        const code = error.code;
+        const message = error.message;
         // 可以拓展更多的需要重发请求的情况
-        if (error.config.enableRetrying && (error.code === "ECONNABORTED" || error.message.includes("timeout of"))) {
+        if (error.config.enableRetrying && (code === "ECONNABORTED" || message.includes("timeout of"))) {
             if (error.config.retryingCount > 0) {
                 error.config.retryingCount--;
                 let current = Math.abs(error.config.retryingCount - maxRetryingCount);
@@ -197,13 +200,18 @@ service.interceptors.response.use(
             console.info("[" + error.config.url + "] 请求失败，总次数为：" + maxRetryingCount);
             release(false);
         }
-        console.warn("错误处理失败.");
-        console.error(error);
-        Message({
-            message: error.statusText || "系统发生异常",
-            type: "error",
-            duration: 5 * 1000
-        });
+        else if (message === 'Network Error') {
+            router.push('/error');
+        }
+        else {
+            console.warn("错误处理失败.");
+            console.error(error);
+            Message({
+                message: error.statusText || "系统发生异常",
+                type: "error",
+                duration: 5 * 1000
+            });
+        }
 
         return Promise.reject(error);
     }

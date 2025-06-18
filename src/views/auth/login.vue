@@ -56,7 +56,7 @@
 
 <script setup>
 import { useLogin, useOauth2Authorize, useCaptcha } from "@/composables/auth";
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, watch } from "vue";
 import { useSettingsStore } from "@/store/settings";
 
 const settingsStore = useSettingsStore();
@@ -71,6 +71,10 @@ const formData = reactive({
 const { login } = useLogin({ formData });
 const { getCaptcha, refresh, captcha } = useCaptcha();
 const { authorize } = useOauth2Authorize();
+
+watch(() => captcha.uuid, (_new) => {
+    formData.uuid = _new;
+});
 
 onMounted(() => {
     getCaptcha();

@@ -4,6 +4,9 @@ import { DELETED } from "@/views/article/constants";
 
 /**
  * 文章分页处理模块；
+ * @param {Reactive<Object>} query 查询参数
+ * @param {Array<Function>} postHandlers 后置处理器
+ * @returns {{list: Ref<*[]>, total: Ref<Number>, queryPagination: (function(): Promise<void>), currentChange: Function, search: Function}}
  */
 export function usePagination({ query, postHandlers = [] }) {
     return useBasePagination({
@@ -14,6 +17,7 @@ export function usePagination({ query, postHandlers = [] }) {
     });
 }
 
+// 如果query中包含states，则将其处理为字符串
 function setStatesIfNecessary(_query) {
     if (_query && _query.states) {
         _query.states = _query.states.join(",");

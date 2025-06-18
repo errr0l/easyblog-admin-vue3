@@ -1,10 +1,10 @@
 import { usePagination } from "./usePagination";
 import { useList } from "../user";
-import { onMounted } from "vue";
+import { onActivated, onMounted } from "vue";
 
 /**
  * 获取文章分页处理模块；并且设置文章作者
- * @param query
+ * @param {Reactive<Object>} query 查询参数
  * @returns {{total: Ref<number>, search: Function, queryPagination: function(): Promise<void>, list: Ref<[]>, currentChange: Function, searchByState: Function}}
  */
 export function usePaginationWithAuthor({ query }) {
@@ -44,6 +44,9 @@ export function usePaginationWithAuthor({ query }) {
     onMounted(() => {
         // 不加await好像也没什么问题
         queryList();
+        queryPagination();
+    });
+    onActivated(() => {
         queryPagination();
     });
 

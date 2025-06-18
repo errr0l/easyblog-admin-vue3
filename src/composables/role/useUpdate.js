@@ -13,11 +13,11 @@ export function useUpdate({ formData, refresh, preHandlers }) {
         // this.formData.removing = getDifference(this.permissionIdsAssigned, checked);
         const resp = await useHandler({ func: _, preHandlers })(formData);
         if (resp?.code === 0) {
-            ElMessage.error("操作成功");
+            ElMessage.success("操作成功");
             refresh();
         }
         else {
-            this.$message.success("操作成功");
+            ElMessage.error("操作失败");
         }
     }
 

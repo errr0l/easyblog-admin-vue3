@@ -32,12 +32,16 @@ export const useUserStore = defineStore("user", {
                 localStorage.setItem(`${_prefix}${key}`, typeof v == 'string' ? v : JSON.stringify(v));
             }
         },
-        init(payload) {
-            const { prefix } = payload;
+        async init(payload) {
+            const { prefix, querying } = payload;
             const _prefix = getPrefixForStorage(prefix);
             this.accessToken = localStorage.getItem(`${_prefix}accessToken`);
             this.refreshToken = localStorage.getItem(`${_prefix}refreshToken`);
             this.user = JSON.parse(localStorage.getItem(`${_prefix}user`));
-        }
+            if (querying) {
+                const permissionStore = usePermissionStore();
+                await permissionStore.getRoutes();
+            }
+        },
     }
 });

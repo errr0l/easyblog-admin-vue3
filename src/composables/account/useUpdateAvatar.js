@@ -3,9 +3,14 @@ import { addIdentityForImagePath } from "@/utils/common";
 import { ref } from "vue";
 import { updateAvatar as _ } from "@/api/account";
 import { useUserStore } from "@/store/user";
-import { ElMessage } from "element-plus";
 
-export function useUpdateAvatar({ formData }) {
+/**
+ * 更新头像
+ * @param {Reactive<Object>} formData 表单数据
+ * @param {Ref<Object>} original 原始数据
+ * @returns {{updateAvatar: ((function(): Promise<void>)), onSuccess: Function}}
+ */
+export function useUpdateAvatar({ formData, original }) {
     const avatar = ref("");
 
     const userStore = useUserStore();
@@ -21,10 +26,10 @@ export function useUpdateAvatar({ formData }) {
         if (resp?.code === 0) {
             const _imagePath = resp.data.avatar;
             formData.avatar = _imagePath;
+            original.value.avatar = _imagePath;
             const user = userStore.user;
             user.avatar = _imagePath;
             userStore.cache({ data: { user } });
-            ElMessage.success("操作成功");
         }
     }
 

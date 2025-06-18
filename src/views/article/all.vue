@@ -112,10 +112,9 @@
         <el-dialog v-model="progressDialogVisible" title="发布进度" width="30%" class="x-el-dialog styl-1" :show-close="false">
             <div class="t-c">
                 <el-progress type="circle" :percentage="progress.percentage" :status="progress.status"></el-progress>
-                <p v-if="progressException" style="color: #f56c6c;">{{ progress.message }}</p>
-                <p v-else-if="progressFinished" style="color: #67c23a;">{{ progress.message }}</p>
+                <p v-if="progress.message">{{ progress.message }}</p>
             </div>
-            <div class="t-r" style="margin-top: 20px;" v-if="progressFinished || progressException">
+            <div class="t-r" style="margin-top: 20px;">
                 <el-button type="primary" size="small" @click="close">确定</el-button>
             </div>
         </el-dialog>
@@ -123,8 +122,8 @@
         <el-dialog v-model="publishDialogVisible" title="发布文章" width="40%" class="x-el-dialog styl-1">
             <el-form :model="formData" label-width="auto" size="small">
                 <el-form-item label="上传至Github">
-                    <el-radio v-model="formData.toGithub" :label="1">是</el-radio>
-                    <el-radio v-model="formData.toGithub" :label="0">否</el-radio>
+                    <el-radio v-model="formData.toRemote" :label="1">是</el-radio>
+                    <el-radio v-model="formData.toRemote" :label="0">否</el-radio>
                 </el-form-item>
                 <el-form-item label="创建html规则">
                     <el-radio v-model="formData.force" :label="0">自动</el-radio>
@@ -146,7 +145,6 @@ import { computed, inject, reactive, ref } from "vue";
 import { usePaginationWithAuthor, useStatistic, useDel, useRouter } from "@/composables/article";
 import { usePublish, useProgressDialog } from "@/composables/app";
 import { useList } from "@/composables/category";
-import { EXCEPTION } from "@/constants/general";
 const getDefaultImage = inject('getDefaultImage');
 const query = reactive({
     size: 10,
@@ -162,14 +160,8 @@ const { list: categoryList } = useList();
 const { statistic } = useStatistic();
 const publishDialogVisible = ref(false);
 const progressDialogVisible = ref(false);
-const { publish, formData, progress } = usePublish({ progressDialogVisible, dialogVisible: publishDialogVisible });
-const { close } = useProgressDialog({ progressDialogVisible, refresh: queryPagination, progress });
+const { publish, formData, progress, resetProgress } = usePublish({ progressDialogVisible, dialogVisible: publishDialogVisible });
+const { close } = useProgressDialog({ progressDialogVisible, refresh: queryPagination, resetProgress });
 const { del } = useDel({ refresh: queryPagination });
 const { audit } = useRouter();
-const progressException = computed(() => {
-    return progress.status === EXCEPTION;
-});
-const progressFinished = computed(() => {
-    return progress.status === 100;
-});
 </script>

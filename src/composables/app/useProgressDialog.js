@@ -1,13 +1,7 @@
-// import { ref } from "vue";
-
-export function useProgressDialog({ progressDialogVisible, progress, refresh }) {
-    // const progressDialogVisible = ref(false);
-    // function show() {}
+export function useProgressDialog({ progressDialogVisible, resetProgress, refresh }) {
     function close() {
         progressDialogVisible.value = false;
-        progress.status = null;
-        progress.message = "";
-        progress.percentage = 0;
+        resetProgress();
         refresh();
     }
     return { close };

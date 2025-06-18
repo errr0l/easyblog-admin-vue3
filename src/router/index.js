@@ -21,7 +21,7 @@ export const constantRoutes = [
         children: [{
             path: 'dashboard',
             name: 'Dashboard',
-            component: () => import('@/views/dashboard/index'),
+            component: () => import('@/views/dashboard'),
             meta: { title: 'Dashboard', icon: 'Compass' }
         }]
     },
@@ -38,14 +38,12 @@ export const constantRoutes = [
     {
         path: '/account',
         component: Layout,
-        value: "account",
         redirect: '/account',
         alwaysShow: true, // will always show the root menu
         meta: {
             title: '账户设置',
             icon: 'UserFilled'
         },
-        temporary: true,
         children: [
             {
                 path: '',
@@ -62,7 +60,12 @@ export const constantRoutes = [
                 }
             }
         ]
-    }
+    },
+    {
+        path: "/error",
+        component: () => import("@/views/error"),
+        hidden: true
+    },
 ];
 
 export const NOT_FOUND = { path: '/:pathMatch(.*)*', redirect: '/404', hidden: true };
@@ -71,17 +74,16 @@ export const asyncRoutes = [
     {
         path: '/article',
         component: Layout,
-        value: "article",
-        alwaysShow: true, // will always show the root menu
+        alwaysShow: true,
         meta: {
             title: '文章',
             icon: 'FolderOpened'
         },
-        temporary: true,
         children: [
             {
                 path: 'all',
                 component: () => import('@/views/article/all'),
+                value: "article:all",
                 meta: {
                     title: '全部文章',
                     cached: true,
@@ -116,16 +118,17 @@ export const asyncRoutes = [
                     // 在进入路由前执行的逻辑
                     // 注意：这里没有 this，因为守卫执行时组件实例还没创建
                     // 根据路由规则或者状态决定是否进入路由
-                    if (from.meta.settingActiveMenu) {
-                        to.meta.activeMenu = from.path;
-                    }
                     // 在编辑页面刷新时，from为/article，因此只能根据query中的参数进行判断；
                     // 但这样也会存在问题，如果用户（管理员）把query删除，并刷新页面的话，将会导致高亮错误的页面（不过应该没人这么闲吧）；
                     // 而且也还有一个默认普通用户设置的兜底，所以这种情况应该没那么糟糕
+                    if (from.meta.settingActiveMenu) {
+                        to.meta.activeMenu = from.path;
+                    }
                     else if (to.query.type === ADMIN) {
                         to.meta.activeMenu = "/article/all";
                     }
-                    next(); // 必须调用该方法来resolve这个钩子
+                    // 必须调用该方法来resolve这个钩子
+                    next();
                 }
             },
         ]
@@ -133,21 +136,20 @@ export const asyncRoutes = [
     {
         path: '/site-asset',
         component: Layout,
-        value: "site-asset",
+        value: "resource",
         redirect: '/site-asset',
-        alwaysShow: true, // will always show the root menu
+        alwaysShow: true,
         meta: {
             title: '站点资源',
             icon: 'Files'
         },
-        temporary: true,
         children: [
             {
-                name: "SiteAssetIndex",
                 path: '',
                 component: () => import('@/views/site-asset/index'),
+                value: "resource:files",
                 meta: {
-                    title: '站点资源管理',
+                    title: '静态文件',
                     cached: true,
                 }
             }
@@ -163,11 +165,11 @@ export const asyncRoutes = [
             title: '系统设置',
             icon: 'Setting'
         },
-        temporary: true,
         children: [
             {
                 path: 'app-setting',
                 component: () => import('@/views/sys/app-setting'),
+                value: "sys:webSetting",
                 meta: {
                     title: '网站设置'
                 }
@@ -185,7 +187,6 @@ export const asyncRoutes = [
                 path: 'permission',
                 component: () => import('@/views/sys/permission'),
                 value: "sys:permission",
-                name: 'Permission',
                 meta: {
                     title: '权限管理'
                 }
@@ -194,7 +195,6 @@ export const asyncRoutes = [
                 path: 'role',
                 component: () => import('@/views/sys/role'),
                 value: "sys:role",
-                name: 'Role',
                 meta: {
                     title: '角色管理'
                 }
@@ -203,7 +203,6 @@ export const asyncRoutes = [
                 path: 'test1',
                 component: () => import('@/views/sys/test1'),
                 value: "sys:test1",
-                name: 'Test1',
                 meta: {
                     title: '测试菜单1'
                 }

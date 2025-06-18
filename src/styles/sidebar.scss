@@ -27,14 +27,14 @@
     //.el-menu-item, .el-submenu__title {
     //  transition: none !important;
     //}
-    .el-menu-item, .el-sub-menu__title {
-      transition: none !important;
-    }
+    //.el-menu-item, .el-sub-menu__title {
+    //  transition: none !important;
+    //}
 
     // reset element-ui css
-    .horizontal-collapse-transition {
-      transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
-    }
+    //.horizontal-collapse-transition {
+    //  transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
+    //}
 
     .scrollbar-wrapper {
       overflow-x: hidden !important;
@@ -59,7 +59,7 @@
     }
 
     a {
-      display: inline-block;
+      //display: inline-block;
       width: 100%;
       overflow: hidden;
     }

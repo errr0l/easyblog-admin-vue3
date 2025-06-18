@@ -45,7 +45,10 @@ export default defineConfig({
         },
         proxy: {
             "^/(image|temp)": {
-                target: config.HOST
+                target: "http://localhost"
+            },
+            "/0": {
+                target: "http://localhost"
             }
         }
     }

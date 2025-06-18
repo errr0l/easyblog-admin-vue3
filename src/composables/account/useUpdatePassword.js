@@ -2,6 +2,10 @@ import { updatePassword as _ } from "@/api/account";
 import { ElMessage } from "element-plus";
 import { reactive, ref } from "vue";
 
+/**
+ * 更新密码；
+ * @returns {{formRef: Ref<UnwrapRef<null>, UnwrapRef<null> | null>, updatePassword: ((function(): Promise<void>)), formData: Reactive<{password: string, original: string, confirmation: string}>, rules: {password: any[], original: any[], confirmation: any[]}}}
+ */
 export function useUpdatePassword() {
     const defaultFormData = {
         original: "",

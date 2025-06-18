@@ -28,8 +28,8 @@
                 <el-table-column align="center" label="描述" prop="description"></el-table-column>
                 <el-table-column align="center" label="操作" width="180">
                     <template #="{ row }">
-                        <el-button size="small" @click="showDialogForEditing(row)">编辑</el-button>
-                        <el-button type="danger" size="small" @click="del(row)">删除</el-button>
+                        <el-button link size="small" @click="showDialogForEditing(row)">编辑</el-button>
+                        <el-button link type="danger" size="small" @click="del(row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>

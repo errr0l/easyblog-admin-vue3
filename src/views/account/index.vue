@@ -1,7 +1,7 @@
 <template>
     <div class="app-container my-app-container">
         <el-card class="x-el-card-table el-card__header-sty-1">
-            <div slot="header" class="clearfix">
+            <template #header>
                 <div style="display: flex;">
                     <div style="flex: 1;">
                         <el-input value="编辑信息" class="x-el-input-b-none" readonly>
@@ -12,7 +12,7 @@
                         <el-button type="primary" size="small" @click="updateAccountInfo">保存</el-button>
                     </div>
                 </div>
-            </div>
+            </template>
             <div style="overflow-y: auto;">
                 <el-form :model="formData" label-width="80px" size="small">
                     <el-form-item label="头像">
@@ -59,7 +59,7 @@ const formData = reactive({ ...defaultFormData });
 const { queryAccountInfo, original } = useAccountInfo({ formData });
 
 const { compare } = useReminder({ original: original, formData, keysChecked: Object.keys(defaultFormData) });
-const { updateAvatar, onSuccess } = useUpdateAvatar({ formData });
+const { updateAvatar, onSuccess } = useUpdateAvatar({ formData, original });
 
 const image = ref("");
 const { createOnUploadImg } = useMarkdownEditor();
