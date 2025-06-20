@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-// 用于加载json文件中指定的资源
+// 用于加载json文件中指定的资源；
+// 大致的效果是将json文件转为js文件，以供引用；
 export default function jsonAssetsLoader(configs = []) {
     if (!Array.isArray(configs)) {
         configs = [configs];
@@ -41,7 +42,6 @@ export default function jsonAssetsLoader(configs = []) {
                     }
                     result += '};';
                     result = _imports + result;
-                    console.log(result);
                     return result;
                 }
             }
