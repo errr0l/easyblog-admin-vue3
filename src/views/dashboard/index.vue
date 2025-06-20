@@ -11,7 +11,6 @@
 <script setup>
 import { computed } from "vue";
 import { useUserStore } from "@/store/user";
-
 const userStore = useUserStore();
 const message = computed(() => {
     return userStore.user.username ? `${userStore.user.username}，欢迎回来，现在要开始码文章了吗？` : '请先登录';

@@ -1,8 +1,9 @@
 // module.exports = {
-import application from "./application.json";
+// import application from "./application.json";
+import appConfig from 'virtual:json-assets/appConfig';
 
 export default {
-    title: application.title,
+    title: appConfig.title,
 
     /**
      * @type {boolean} true | false
@@ -15,10 +16,10 @@ export default {
      * @description Whether show the logo in sidebar
      */
     sidebarLogo: true,
-    copyright: application.copyright,
-    logo: new URL(application.logo, import.meta.url).href,
+    copyright: appConfig.copyright,
+    logo: appConfig.logo,
     // 登录、注册左边图片
-    cover: new URL(application.cover, import.meta.url).href,
-    registerGreeting: application.registerGreeting,
-    loginGreeting: application.loginGreeting,
+    cover: appConfig.cover,
+    registerGreeting: appConfig.registerGreeting,
+    loginGreeting: appConfig.loginGreeting,
 };

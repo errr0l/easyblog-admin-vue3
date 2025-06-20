@@ -1,8 +1,8 @@
 {
     "title": "Errol's Blog",
     "copyright": "© 2023 - Present Errol. All rights reserved.",
-    "logo": "./assets/images/4.webp",
-    "cover": "./assets/images/3.webp",
+    "logo": "@/assets/images/4.webp",
+    "cover": "@/assets/images/3.webp",
     "registerGreeting": "<span style=\"font-size: 20px;\">REGISTRATION</span>",
     "loginGreeting": "<span style=\"font-size: 20px;\">Hello,</span><br/><span>Welcome! </span>"
 }

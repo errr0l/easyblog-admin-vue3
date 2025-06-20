@@ -3,10 +3,11 @@ import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import path from 'path';
+import config from "./config/easyblog/config.json";
+import jsonAssetsLoader from "./vite-plugins/vite-plugin-json-assets-loader";
 
 // 开发配置；
 // 在生产环境由nginx处理；
-import config from "./config/easyblog/config.json";
 function devConfig() {
     return {
         name: 'dev-config',
@@ -22,11 +23,13 @@ function devConfig() {
 
 // https://vite.dev/config/
 export default defineConfig({
+    base: config.PREFIX,
     plugins: [
         vue(),
         vueJsx(),
         vueDevTools(),
         devConfig(),
+        jsonAssetsLoader([{ alias: 'appConfig', configPath: './src/application.json' }]),
     ],
     esbuild: {
         loader: 'jsx'
