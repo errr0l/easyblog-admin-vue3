@@ -1,15 +1,18 @@
-// 表单提示处理模块；
 import { onMounted, onUnmounted, ref, isRef } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { ElMessageBox } from "element-plus";
+import { isPrimitive } from "@/utils/common";
 
+// 表单提示处理模块；
 export function useReminder({ keysChecked = [], original, formData }) {
     const skipComparison = ref(false);
     const message = "内容尚未保存，改动部分将会被丢弃，是否继续？";
-    // 判断是否为基本类型
-    function isPrimitive(value) {
-        return (value === null || typeof value !== 'object' && typeof value !== 'function');
-    }
+    /**
+     * 比较对象属性
+     * @param {Object} o1
+     * @param {Object|Reactive<Object>|Ref<Object>} o2
+     * @returns {number}
+     */
     function compare(o1, o2) {
         if (isRef(o2)) {
             o2 = o2.value;
@@ -23,7 +26,7 @@ export function useReminder({ keysChecked = [], original, formData }) {
         for (let key of keysChecked) {
             const val = o1[key];
             if (isPrimitive(val)) {
-                if (val !== o2[key]) {
+                if (val !== (o2[key] || "")) {
                     return notEqual;
                 }
             }

@@ -11,7 +11,7 @@ export function useLogout() {
             .then(async () => {
                 await _();
                 userStore.logout();
-                router.push(`/login`);
+                router.push("/login");
             }).catch(() => {
             });
     }

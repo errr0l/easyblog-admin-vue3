@@ -4,7 +4,7 @@ import { useAppStore } from "@/store/app";
 import { useRoute, useRouter } from "vue-router";
 import { ref } from "vue";
 
-export function useLogin({ formData }) {
+export function useLogin({ formData = {} } = {}) {
     const appStore = useAppStore();
     const router = useRouter();
     const route = useRoute();
@@ -24,13 +24,15 @@ export function useLogin({ formData }) {
         if (resp?.code === 0) {
             ElMessage.success("登陆成功");
             router.push({ path: route.query.redirect || '/' });
-            const { accessToken, refreshToken, baseInfo: user } = resp.data;
-            appStore?.userStore.cache({
-                prefix: appStore.config.PREFIX,
-                data: { accessToken, refreshToken, user }
-            });
+            const { baseInfo: user, ...rest } = resp.data;
+            appStore.userStore.cache({ data: { ...rest, user } });
         }
     }
 
-    return { loading, login };
+    function toLogin() {
+        const redirect = route.fullPath;
+        router.replace(`/login?redirect=${redirect}`);
+    }
+
+    return { loading, login, toLogin };
 }

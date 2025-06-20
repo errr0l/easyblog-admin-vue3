@@ -6,7 +6,7 @@ import { useAppStore } from "./store/app";
 
 import 'nprogress/nprogress.css';
 
-const whiteList = ['/login', '/oauth2/callback', '/404', '/register', '/error'];
+const pathsWithoutRoutes = ['/login', '/oauth2/callback', '/404', '/register', '/error'];
 let appStore;
 
 // NProgress Configuration
@@ -28,11 +28,22 @@ router.beforeEach(async (to, from, next) => {
         const resp = await fetch(configUrl)
             .then(res => res.json());
         appStore.setConfig({ config: resp });
-        await appStore.userStore.init({ prefix: resp.PREFIX, querying: !whiteList.includes(to.path) });
-        next({ ...to, replace: true });
+        appStore.userStore.init({ prefix: resp.PREFIX });
     }
-    next();
-})
+
+    if (!appStore.permissionStore.queried && !pathsWithoutRoutes.includes(to.path)) {
+        await appStore.permissionStore.getRoutes();
+        if (appStore.permissionStore.queried) {
+            next({ ...to, replace: true });
+        }
+        else {
+            next();
+        }
+    }
+    else {
+        next();
+    }
+});
 
 router.afterEach(() => {
     // finish progress bar

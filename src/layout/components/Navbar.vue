@@ -5,7 +5,8 @@
         <div class="right-menu">
             <div class="username x-el-button-text">
                 <el-link>你好，</el-link>
-                <el-link type="primary">{{ username }}</el-link>
+                <el-link type="primary" v-if="username">{{ username }}</el-link>
+                <el-link v-else @click="toLogin">请登录</el-link>
             </div>
             <el-dropdown class="avatar-container" trigger="click">
                 <div class="avatar-wrapper">
@@ -34,22 +35,22 @@ import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
 import { useUserStore } from "@/store/user";
 import { useAppStore } from "@/store/app";
-import defaultImage from '@/assets/404_images/404.png';
-import { computed } from "vue";
-import { useLogout } from "@/composables/auth";
+import { computed, inject } from "vue";
+import { useLogout, useLogin } from "@/composables/auth";
 
 const userStore = useUserStore();
 const appStore = useAppStore();
-
+const getDefaultImage = inject("getDefaultImage");
 const sidebar = computed(() => appStore.sidebar);
 const avatar = computed(() => {
     const avatar = userStore.user.avatar;
-    return avatar ? avatar : defaultImage;
+    return avatar ? avatar : getDefaultImage();
 });
 const username = computed(() => userStore.user.username || "");
 
 const toggleSideBar = () => appStore.toggleSideBar();
 const { logout } = useLogout();
+const { toLogin } = useLogin();
 </script>
 
 <style lang="scss" scoped>

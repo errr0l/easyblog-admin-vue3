@@ -140,7 +140,7 @@ const { id, type = USER } = route.query;
 const isUser = type === USER;
 const skipComparison = ref(false);
 const formData = reactive({ ...defaultFormData });
-const { original } = useDetail({ formData, id, type });
+const { original, loading } = useDetail({ formData, id, type });
 const { auditingDialogVisible, settingsDialogVisible } = useDialog();
 const { audit, formData: auditFormData } = useAudit({ dialogVisible: auditingDialogVisible, id });
 const { saveDraft } = useSaveDraft({ formData, skipComparison });

@@ -1,8 +1,7 @@
 import { ORIGINAL } from "@/views/article/constants";
 import { getDetail as _ } from "@/api/accountArticle";
 import { getDetail as __ } from "@/api/article";
-import { onMounted, reactive } from "vue";
-import { useRoute } from "vue-router";
+import { onMounted, reactive, ref } from "vue";
 import { USER } from "@/constants/general";
 
 /**
@@ -10,15 +9,11 @@ import { USER } from "@/constants/general";
  * @param {Reactive<{ id, title, content, categoryId, cover, summary, tag, creationType, reprintUrl, commentable, sort }>} formData 表单
  * @param {String|Number} id 文章id
  * @param {String} type 用户类型
- * @returns {{queryDetail: ((function((String|Number)): Promise<void>)|*), original: Reactive<{}>}}
+ * @returns {{queryDetail: ((function((String|Number)): Promise<void>)|*), original: Reactive<{}>, loading: Ref<Boolean>}}
  */
 export function useDetail({ formData, id, type }) {
     const original = reactive({});
-    if (!id || !type) {
-        const route = useRoute();
-        id = route.query.id;
-        type = route.query.type;
-    }
+    const loading = ref(true);
     /**
      * 获取文章详情；
      * 分普通用户和管理员，如果其他接口也有这种使用场景时，也可以按照这种方式
@@ -35,9 +30,12 @@ export function useDetail({ formData, id, type }) {
         }
     }
 
-    onMounted(() => {
-        id && queryDetail(id);
+    onMounted(async () => {
+        if (id) {
+            await queryDetail(id);
+        }
+        loading.value = false;
     });
 
-    return { queryDetail, original };
+    return { queryDetail, original, loading };
 }

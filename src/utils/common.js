@@ -14,6 +14,10 @@ export function getDifference(c1, c2) {
     // return result;
 }
 
+export function isPrimitive(value) {
+    return (value === null || typeof value !== 'object' && typeof value !== 'function');
+}
+
 export const emailRule = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)+$/;
 
 // 复制属性

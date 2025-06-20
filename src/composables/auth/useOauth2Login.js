@@ -27,8 +27,8 @@ export function useOauth2Login() {
             else {
                 ElMessage.success("登陆成功");
                 router.push({ path: redirect.value || '/' });
-                const { accessToken, refreshToken, baseInfo: user } = resp.data;
-                appStore.userStore.cache({ data: { accessToken, refreshToken, user } });
+                const { baseInfo: user, ...rest } = resp.data;
+                appStore.userStore.cache({ data: { ...rest, user } });
                 return;
             }
         }

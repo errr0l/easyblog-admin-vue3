@@ -2,27 +2,19 @@
     <div class="app-container my-app-container">
         <el-card class="x-el-card-table el-card__header-sty-3" style="position: relative;">
             <div slot="header" style="font-size: 20px; color: #606266;">
-                欢迎回来，{{user.username}}，现在要开始码文章了吗？
+                {{ message }}
             </div>
         </el-card>
     </div>
 </template>
 
-<script>
-
-import { defineComponent } from "vue";
+<script setup>
+import { computed } from "vue";
 import { useUserStore } from "@/store/user";
 
-export default defineComponent({
-    name: "Dashboard",
-    data() {
-        return {
-            userStore: useUserStore()
-        }
-    },
-    created() {
-        this.user = this.userStore.user;
-    },
+const userStore = useUserStore();
+const message = computed(() => {
+    return userStore.user.username ? `${userStore.user.username}，欢迎回来，现在要开始码文章了吗？` : '请先登录';
 });
 </script>
 

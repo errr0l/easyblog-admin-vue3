@@ -1,34 +1,46 @@
 import axios from "axios";
 import { refresh } from "@/api/account";
-// import { Message, MessageBox } from "element-ui";
 import { ElMessage as Message, ElMessageBox as MessageBox } from "element-plus";
 import router from "@/router";
 import { useAppStore } from "@/store/app";
 
 const maxRetryingCount = 3;
 const service = axios.create({
-    // baseURL: "http://localhost", // 以在nginx中可以更好的匹配
     timeout: 5000,
     retryingCount: maxRetryingCount // 事实上只是刷新令牌的次数
 });
 
 let retrying = false;
 const queue = [];
+let appStore;
+
+function getAppStore() {
+    return appStore || (appStore = useAppStore());
+}
 
 /**
  * 登陆弹窗
- * @summary 如果当前路径不是/login，则调整至/login，并取当前路径作为重定向路径，以登陆成功后跳转回当前路径
+ * @summary 跳转至/login，并取当前路径作为重定向路径，以登陆成功后返回
  * @param {string} message - 提示文本
  * @param {Object} $route - 路由实例
  */
-function gotoLoginPage(message, $route) {
-    let redirectPath = $route.fullPath;
+function toLogin(message, $route) {
+    if (toLogin.noticed) {
+        return;
+    }
+    toLogin.noticed = true;
     MessageBox.confirm(message, "提示", {
         confirmButtonText: "确定"
     }).then(() => {
+        let redirectPath = $route.fullPath;
         if (!redirectPath.includes("/login")) {
-            router.push(`/login?redirect=${redirectPath}`);
+            router.replace(`/login?redirect=${redirectPath}`);
         }
+        else {
+            router.replace(redirectPath);
+        }
+    }).finally(() => {
+        toLogin.noticed = false;
     });
 }
 
@@ -39,17 +51,16 @@ function gotoLoginPage(message, $route) {
  */
 function release(ok) {
     if (queue.length) {
-        for (const handler of queue) {
+        let handler;
+        while ((handler = queue.pop())) {
             handler(ok);
         }
-        // 释放队列
-        queue.length = 0;
     }
 }
 
 /**
  * 通知方法
- * @param {Number} type - 通知类型；1=gotoLoginPage，2=Message.error
+ * @param {Number} type - 通知类型；1=toLogin，2=Message.error
  * @param {Object} resp - 响应对象
  * @returns
  */
@@ -60,34 +71,32 @@ const notice = (type, resp) => {
     const data = resp.data;
     // 目前只有两种通知类型：1=前往登陆提示，2=默认提示
     if (type === 1) {
-        gotoLoginPage(data.message, router.currentRoute.value);
-    } else if (type === 2) {
+        toLogin(data.message, router.currentRoute.value);
+    }
+    else if (type === 2) {
         Message({
             message: data.message || "系统发生异常",
-            type: 'error'
+            type: 'error',
         });
     }
 };
 
-// 若url不是一http开头时，补充baseUrl；
 // 修改请求路径，以命中nginx中的配置；
+// 若url不是"/0"开头时，补充；
 // 关于store，可以在每次使用时调用对应的方法（如useAppStore），但因为觉得比较繁琐，所以在这里调用了；
 export const baseUrlInterceptor = config => {
-    const store = useAppStore();
-    if (config.url.startsWith("/")) {
-        const _config = store.config;
-        // config.url = `${_config.HOST}/0${_config.PREFIX}${config.url}`;
+    const store = getAppStore();
+    const _config = store.config;
+    if (!config.url.includes("/0")) {
         config.url = `/0${_config.PREFIX}${config.url}`;
     }
     return config;
 };
 
 export const tokenInterceptor = config => {
-    const store = useAppStore();
+    const store = getAppStore();
     const accessToken = store.accessToken;
-    if (accessToken) {
-        config.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
+    accessToken && (config.headers["Authorization"] = `Bearer ${accessToken}`);
     return config;
 };
 
@@ -104,52 +113,55 @@ const silenceInterceptor = config => {
 };
 
 async function respHandler(resp) {
-    const store = useAppStore();
     const data = resp.data || {};
     switch (data.code) {
         case 0:
             return data;
         // 未登录或accessToken过期
         case 40101:
+            const store = getAppStore();
             const refreshToken = store.refreshToken;
             // 如果没有刷新token，就提示
             if (!refreshToken) {
                 notice(1, resp);
                 break;
             }
+            // 若处于刷新状态下，将后续的请求加入队列；
+            // 关于重放请求的方式，有两种实现方式：
+            //  1）依赖于服务器，将返回401的请求加入队列；
+            //  2）前端自行标注需要认证的接口，在发起请求之前加入队列，好处是不会出现一排401的情况，比方说并发需认证的请求时；坏处是麻烦，首先得判断令牌是否过期，其次还要单独标注接口；
+            // 因为不想过于复杂，所以这里选用了第一种；
             if (!retrying) {
                 retrying = true;
                 try {
                     const refreshResp = await refresh({ refreshToken });
-                    // 防止循环请求
-                    if (!refreshResp || refreshResp.code !== 0) {
-                        throw new Error(refreshResp?.message ?? "刷新失败");
+                    if (refreshResp?.code === 0) {
+                        const payload = {
+                            data: { ...refreshResp.data }
+                        };
+                        store.userStore.cache(payload);
+                        release(true);
+                        return service(resp.config);
                     }
-                    const { accessToken, refreshToken: _new } = refreshResp.data;
-                    const payload = {
-                        data: { accessToken }
-                    };
-                    if (_new != refreshToken) {
-                        payload.data["refreshToken"] = refreshToken;
+                    else {
+                        console.info("刷新失败：" + refreshResp.message || "");
                     }
-                    // store.dispatch("user/cache", payload);
-                    store.userStore.cache(payload);
-                    release(true);
-                    return service(resp.config);
-                } catch (error) {
+                }
+                catch (error) {
                     console.info("刷新失败：", error);
-                } finally {
+                }
+                finally {
                     retrying = false;
                 }
             }
-            // 将后续的请求加入队列
             else {
                 return new Promise((resolve, reject) => {
                     queue.push((ok) => {
                         // 请求成功
                         if (ok) {
                             resolve(service(resp.config));
-                        } else {
+                        }
+                        else {
                             reject("refreshing failure.");
                         }
                     });
@@ -157,9 +169,10 @@ async function respHandler(resp) {
             }
             break;
         case 40198:
+        case 40199:
             notice(1, resp);
             // store.dispatch("user/cache", { data: { refreshToken: "" } });
-            store.userStore.cache({ data: { refreshToken: "" } });
+            getAppStore().userStore.cache({ data: { refreshToken: "" } });
             break;
         default:
             notice(2, resp);
@@ -175,7 +188,7 @@ service.interceptors.request.use(tokenInterceptor);
 
 // response interceptor
 service.interceptors.response.use(
-    async response => {
+    response => {
         return respHandler(response) || {};
     },
     error => {
@@ -212,7 +225,6 @@ service.interceptors.response.use(
                 duration: 5 * 1000
             });
         }
-
         return Promise.reject(error);
     }
 );

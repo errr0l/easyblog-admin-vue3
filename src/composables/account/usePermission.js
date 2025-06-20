@@ -5,10 +5,12 @@ import { computed, ref } from "vue";
 // 获取账号权限
 export function usePermission() {
     const list = ref([]);
+    const success = ref(false);
     async function queryPermissions() {
         const resp = await _();
         if (resp?.code === 0) {
             list.value = resp.data;
+            success.value = true;
         }
     }
 
@@ -55,5 +57,5 @@ export function usePermission() {
         return list.value.filter(item => item.type === PERMISSION_MENU);
     });
 
-    return { queryPermissions, list, menus, makeUserRoutes };
+    return { queryPermissions, list, menus, makeUserRoutes, success };
 }
