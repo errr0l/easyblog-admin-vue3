@@ -127,12 +127,9 @@ const { confirm } = useConfirm();
 const { del } = useDel({ refresh: queryPagination });
 const { cancel } = useCancel();
 const { edit, add } = useRouter();
-const { list: categoryList, queryList } = useList();
+const { list: categoryList } = useList();
 const { recover } = useRecover();
 const getDefaultImage = inject('getDefaultImage');
-onMounted(() => {
-    queryList();
-});
 
 onActivated(() => {
     queryPagination();

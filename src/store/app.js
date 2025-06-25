@@ -13,7 +13,8 @@ export const useAppStore = defineStore("app", {
             withoutAnimation: false
         },
         device: "desktop",
-        config: null,
+        config: {},
+        configQueried: false,
         userStore: useUserStore(),
         permissionStore: usePermissionStore()
     }),
@@ -45,6 +46,9 @@ export const useAppStore = defineStore("app", {
         },
         setConfig({ config }) {
             this.config = config;
+            if (Object.keys(config).length) {
+                this.configQueried = true;
+            }
         }
     }
 });

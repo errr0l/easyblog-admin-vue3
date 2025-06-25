@@ -2,17 +2,16 @@ import fs from 'fs';
 import path from 'path';
 
 // 用于加载json文件中指定的资源；
-// 大致的效果是将json文件转为js文件，以供引用；
+// 大致的效果是将json文件转为虚拟js文件，以供引用；
+// 使用方法：
+// 1）启用插件：jsonAssetsLoader([{ alias: 'appConfig', configPath: './src/application.json' }])
+// 2）在js中引用：import appConfig from 'virtual:json-assets/appConfig';
 export default function jsonAssetsLoader(configs = []) {
-    if (!Array.isArray(configs)) {
-        configs = [configs];
-    }
     const _modules = {};
     configs.forEach(({ alias, configPath }) => {
         const id = `virtual:json-assets/${alias}`;
         _modules[id] = path.resolve(process.cwd(), configPath);
     });
-
     return {
         name: 'json-assets-loader',
         resolveId(id) {

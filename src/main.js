@@ -11,9 +11,8 @@ import { createPinia } from "pinia";
 import App from "./App";
 import router from "./router";
 
-import "@/permission"; // permission control
+import "@/permission";
 import defaultImage from "@/assets/images/default-cover.jpg";
-// import icons from '@/icons'; // icon
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 
 const app = createApp(App);
@@ -24,7 +23,6 @@ app.use(ElementPlus, {
 });
 app.use(createPinia());
 app.use(router);
-// app.use(icons);
 
 // 组成ep图标；在菜单中使用时，可以直接提对应了组件名的icon名称（大写）
 for (const [key, value] of Object.entries(ElementPlusIconsVue)) {

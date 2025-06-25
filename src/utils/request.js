@@ -3,19 +3,35 @@ import { refresh } from "@/api/account";
 import { ElMessage as Message, ElMessageBox as MessageBox } from "element-plus";
 import router from "@/router";
 import { useAppStore } from "@/store/app";
+import { getLogger } from "@/utils/logger";
 
+const loggerOptions = {
+    name: "request.js"
+};
+const logger = getLogger(loggerOptions);
 const maxRetryingCount = 3;
-const service = axios.create({
+const config = {
     timeout: 5000,
-    retryingCount: maxRetryingCount // 事实上只是刷新令牌的次数
-});
+    retryingCount: maxRetryingCount, // 事实上只是刷新令牌的次数
+    enableRetrying: false
+};
+const service = axios.create(config);
+const axiosRequestConfigMessages = ["axios请求配置：", config];
+if (!config.enableRetrying) {
+    axiosRequestConfigMessages.push("；未启用重试机制.");
+}
+getLogger({ ...loggerOptions, delay: 1100 })(axiosRequestConfigMessages);
 
 let retrying = false;
 const queue = [];
 let appStore;
 
 function getAppStore() {
-    return appStore || (appStore = useAppStore());
+    if (appStore) {
+        return appStore;
+    }
+    appStore = useAppStore();
+    return appStore;
 }
 
 /**
@@ -33,12 +49,15 @@ function toLogin(message, $route) {
         confirmButtonText: "确定"
     }).then(() => {
         let redirectPath = $route.fullPath;
+        logger("跳转登录：" + redirectPath);
         if (!redirectPath.includes("/login")) {
             router.replace(`/login?redirect=${redirectPath}`);
         }
         else {
             router.replace(redirectPath);
         }
+    }).catch(() => {
+        logger("用户取消跳转登录.");
     }).finally(() => {
         toLogin.noticed = false;
     });
@@ -51,6 +70,7 @@ function toLogin(message, $route) {
  */
 function release(ok) {
     if (queue.length) {
+        logger(`释放请求队列： ${queue.length}；flag: ${ok}`);
         let handler;
         while ((handler = queue.pop())) {
             handler(ok);
@@ -65,6 +85,7 @@ function release(ok) {
  * @returns
  */
 const notice = (type, resp) => {
+    logger(`调用通知方法；通知类型：${type}`);
     if (resp.config && resp.config.silence) {
         return;
     }
@@ -79,6 +100,11 @@ const notice = (type, resp) => {
             type: 'error',
         });
     }
+};
+
+export const loggerInterceptor = (config) => {
+    logger(['config -', 'url：', config.url, '；method：', config.method, '；header：', config.headers, '；query：', config.query, "；params：", config.params]);
+    return config;
 };
 
 // 修改请求路径，以命中nginx中的配置；
@@ -96,7 +122,9 @@ export const baseUrlInterceptor = config => {
 export const tokenInterceptor = config => {
     const store = getAppStore();
     const accessToken = store.accessToken;
-    accessToken && (config.headers["Authorization"] = `Bearer ${accessToken}`);
+    if (accessToken) {
+        accessToken && (config.headers["Authorization"] = `Bearer ${accessToken}`);
+    }
     return config;
 };
 
@@ -123,6 +151,7 @@ async function respHandler(resp) {
             const refreshToken = store.refreshToken;
             // 如果没有刷新token，就提示
             if (!refreshToken) {
+                logger("刷新令牌不存在，需重新登录.");
                 notice(1, resp);
                 break;
             }
@@ -133,9 +162,11 @@ async function respHandler(resp) {
             // 因为不想过于复杂，所以这里选用了第一种；
             if (!retrying) {
                 retrying = true;
+                logger("访问令牌已过期，尝试刷新令牌.");
                 try {
                     const refreshResp = await refresh({ refreshToken });
                     if (refreshResp?.code === 0) {
+                        logger("刷新成功，将重新发起请求.");
                         const payload = {
                             data: { ...refreshResp.data }
                         };
@@ -144,17 +175,18 @@ async function respHandler(resp) {
                         return service(resp.config);
                     }
                     else {
-                        console.info("刷新失败：" + refreshResp.message || "");
+                        logger("刷新失败：" + (refreshResp.message || ""), 'error');
                     }
                 }
                 catch (error) {
-                    console.info("刷新失败：", error);
+                    logger(["刷新失败：", error], 'error');
                 }
                 finally {
                     retrying = false;
                 }
             }
             else {
+                logger("等待刷新令牌：" + resp.config.url);
                 return new Promise((resolve, reject) => {
                     queue.push((ok) => {
                         // 请求成功
@@ -171,10 +203,11 @@ async function respHandler(resp) {
         case 40198:
         case 40199:
             notice(1, resp);
-            // store.dispatch("user/cache", { data: { refreshToken: "" } });
+            logger("刷新令牌已过期，需重新登录：" + getAppStore().refreshToken);
             getAppStore().userStore.cache({ data: { refreshToken: "" } });
             break;
         default:
+            logger("未知处理的错误：" + (data.message || ""), 'error');
             notice(2, resp);
     }
     release(false);
@@ -185,6 +218,7 @@ async function respHandler(resp) {
 service.interceptors.request.use(baseUrlInterceptor);
 service.interceptors.request.use(silenceInterceptor);
 service.interceptors.request.use(tokenInterceptor);
+service.interceptors.request.use(loggerInterceptor);
 
 // response interceptor
 service.interceptors.response.use(
@@ -192,7 +226,7 @@ service.interceptors.response.use(
         return respHandler(response) || {};
     },
     error => {
-        console.log(error);
+        logger(['请求错误：', error], 'error');
         if (error.response) {
             return respHandler(error.response);
         }
@@ -204,21 +238,19 @@ service.interceptors.response.use(
             if (error.config.retryingCount > 0) {
                 error.config.retryingCount--;
                 let current = Math.abs(error.config.retryingCount - maxRetryingCount);
-                console.warn("第" + current + "次重发中...");
-                if (error.config.configHandler && typeof error.config.configHandler === "function") {
-                    error.config.configHandler();
-                }
+                logger("第" + current + "次重发中...");
+                typeof error.config.configHandler === "function" && error.config.configHandler();
                 return service(error.config);
             }
-            console.info("[" + error.config.url + "] 请求失败，总次数为：" + maxRetryingCount);
+            logger("[" + error.config.url + "] 请求失败，总次数为：" + maxRetryingCount);
             release(false);
         }
         else if (message === 'Network Error') {
+            logger("网络错误，请检查网络设置.");
             router.push('/error');
         }
         else {
-            console.warn("错误处理失败.");
-            console.error(error);
+            logger(["错误处理失败：", error]);
             Message({
                 message: error.statusText || "系统发生异常",
                 type: "error",

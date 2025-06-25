@@ -10,13 +10,14 @@ import configProvider from "./plugins/vite-plugin-config-provider";
 export default defineConfig(({ mode }) => {
     const prod = mode === 'production';
     return {
-        base: prod ? "/easyblog/admin" : '',
+        // base: prod ? "/easyblog/admin" : '',
+        base: "/easyblog/admin",
         plugins: [
             vue(),
             vueJsx(),
             vueDevTools(),
-            configProvider("./config/config.json"),
-            jsonAssetsLoader([{ alias: 'appConfig', configPath: './src/application.json' }]),
+            configProvider({ configPath: './config/config.json', route: '/easyblog/config.json' }),
+            jsonAssetsLoader([{ configPath: './src/application.json', alias: 'appConfig' }]),
         ],
         esbuild: {
             loader: 'jsx'

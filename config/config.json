@@ -4,5 +4,6 @@
         "OAUTH_REDIRECT_URI": "http://localhost:5173/#/oauth2/callback",
         "OAUTH_AUTHORIZATION_URI": "http://localhost:8111/oauth2/authorize",
         "OAUTH_CLIENT_ID": "1"
-    }
+    },
+    "DEBUG": true
 }
