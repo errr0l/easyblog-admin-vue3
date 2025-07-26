@@ -44,7 +44,6 @@ export function useMenu({ permissions }) {
     // 菜单
     const menu = computed(() => {
         const _menu = generateTree(permissions.value);
-        console.log(_menu);
         return _menu.length ? [extraOption].concat(_menu) : [];
     });
     // 展开项

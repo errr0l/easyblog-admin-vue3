@@ -46,8 +46,8 @@ import { ref } from "vue";
 const { list, expanded } = useFileList();
 const placeholder = "请选择需要编辑的文件";
 const textareaRef = ref(null);
-const { content, queryFile, cache } = useFile({ textareaRef });
-const { save } = useSaveFile({ content, cache });
+const { content, queryFile, cache, fileName } = useFile({ textareaRef });
+const { save } = useSaveFile({ content, cache, name: fileName });
 
 function onEdit(data) {
     const { parentDir, name } = data;

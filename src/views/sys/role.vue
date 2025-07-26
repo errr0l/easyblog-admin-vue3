@@ -139,7 +139,7 @@ const props = {
 
 onMounted(() => {
     queryPagination();
-    getList();
+    // getList();
 });
 </script>
 

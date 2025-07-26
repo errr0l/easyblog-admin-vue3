@@ -6,8 +6,10 @@ export function useFile({ textareaRef }) {
     const fileReader = new FileReader();
     const content = ref("");
     const cache = reactive({});
+    const fileName = ref("");
     async function queryFile(name) {
         const _content = cache[name];
+        fileName.value = fileName;
         if (_content) {
             content.value = _content;
             return;
@@ -30,5 +32,5 @@ export function useFile({ textareaRef }) {
         }
     }
 
-    return { queryFile, cache, content };
+    return { queryFile, cache, content, fileName };
 }

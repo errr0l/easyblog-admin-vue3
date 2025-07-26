@@ -3,7 +3,7 @@ import { save as _ } from "@/api/site-asset";
 
 export function useSaveFile({ content, cache, name }) {
     async function save() {
-        if (content === cache[name]) {
+        if (content.value === cache[name.value]) {
             return ElMessage.warning('当前内容没有发生变化');
         }
         const formData = {
