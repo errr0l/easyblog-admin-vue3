@@ -22,3 +22,19 @@ export function save(data) {
         data
     });
 }
+
+export function refresh(data) {
+    return request({
+        url: '/app/resource/refresh',
+        method: 'post',
+        data
+    });
+}
+
+export function create(data) {
+    return request({
+        url: '/app/resource/create',
+        method: 'post',
+        data
+    });
+}

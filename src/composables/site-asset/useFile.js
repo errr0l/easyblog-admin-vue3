@@ -6,10 +6,8 @@ export function useFile({ textareaRef }) {
     const fileReader = new FileReader();
     const content = ref("");
     const cache = reactive({});
-    const fileName = ref("");
     async function queryFile(name) {
         const _content = cache[name];
-        fileName.value = fileName;
         if (_content) {
             content.value = _content;
             return;
@@ -19,7 +17,7 @@ export function useFile({ textareaRef }) {
         };
         const resp = await _(params);
         if (resp?.code !== 0) {
-            return ElMessage.error(resp.message);
+            return;
         }
         const blob = new Blob([resp.data.content], { type: "text/plain" });
 
@@ -32,5 +30,5 @@ export function useFile({ textareaRef }) {
         }
     }
 
-    return { queryFile, cache, content, fileName };
+    return { queryFile, cache, content };
 }

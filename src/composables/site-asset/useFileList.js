@@ -1,5 +1,4 @@
 import { loadResources as _ } from "@/api/site-asset";
-import { ElMessage } from "element-plus";
 import { computed, onMounted, ref } from "vue";
 
 export function useFileList() {
@@ -7,7 +6,7 @@ export function useFileList() {
     async function queryList() {
         const resp = await _();
         if (resp?.code !== 0) {
-            return ElMessage.error(resp.message);
+            return;
         }
         sort(resp.data);
         list.value = resp.data;
@@ -31,7 +30,7 @@ export function useFileList() {
     }
 
     const expanded = computed(() => {
-        return list.value.map(item => item.name);
+        return list.value.map(item => item.name).filter(item => !item.startsWith("."));
     });
 
     onMounted(() => {

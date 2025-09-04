@@ -7,6 +7,14 @@
                         <el-input value="编辑文件" class="x-el-input-b-none" readonly></el-input>
                     </div>
                     <div class="acts">
+                        <el-button type="primary" size="small" @click="creatingDialogVisible = true">
+                            <el-icon  style="margin-right: 5px;"><Document /></el-icon>
+                            新建
+                        </el-button>
+                        <el-button type="primary" size="small" @click="refresh">
+                            <el-icon style="margin-right: 5px;"><Refresh /></el-icon>
+                            刷新
+                        </el-button>
                         <el-button type="primary" size="small" @click="save">
                             <el-icon style="margin-right: 5px;" class="el-icon--right"><Edit /></el-icon>
                             保存
@@ -36,23 +44,50 @@
                 </div>
             </div>
         </el-card>
+
+        <el-dialog v-model="creatingDialogVisible" title="新建文件" width="40%" class="x-el-dialog styl-1">
+            <el-form label-width="80px" size="small">
+                <el-form-item label="名称">
+                    <el-input v-model="fileName" placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="内容">
+                    <textarea v-model="newContent" placeholder="请输入" rows="5" style="width: 100%;" />
+                </el-form-item>
+            </el-form>
+            <div style="text-align: right;">
+                <el-button @click="creatingDialogVisible = false" size="small">取消</el-button>
+                <el-button type="primary" size="small" @click="onCreate">确定</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { useFile, useSaveFile, useFileList } from "@/composables/site-asset";
-import { ref } from "vue";
+import { useFile, useSaveFile, useFileList, useCreateFile, useRefreshFileList } from "@/composables/site-asset";
+import { ref, watch } from "vue";
 
-const { list, expanded } = useFileList();
+const { list, expanded, queryList } = useFileList();
 const placeholder = "请选择需要编辑的文件";
 const textareaRef = ref(null);
-const { content, queryFile, cache, fileName } = useFile({ textareaRef });
+const fileName = ref("");
+const creatingDialogVisible = ref(false);
+const newContent = ref("");
+
+const { content, queryFile, cache } = useFile({ textareaRef });
 const { save } = useSaveFile({ content, cache, name: fileName });
+const { refresh } = useRefreshFileList({ cache, queryList });
+const { create } = useCreateFile({ name: fileName, content: newContent });
 
 function onEdit(data) {
     const { parentDir, name } = data;
     const _name = parentDir + name;
+    fileName.value = _name;
     queryFile(_name);
+}
+
+function onCreate() {
+    create();
+    creatingDialogVisible.value = false;
 }
 </script>
 

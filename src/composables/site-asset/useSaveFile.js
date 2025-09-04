@@ -7,12 +7,12 @@ export function useSaveFile({ content, cache, name }) {
             return ElMessage.warning('当前内容没有发生变化');
         }
         const formData = {
-            name: name,
-            content: content
+            name: name.value,
+            content: content.value
         };
         const resp = await _(formData);
         if (resp?.code !== 0) {
-            return ElMessage.error(resp.message);
+            return;
         }
         // 更新缓存
         cache[name] = content;
