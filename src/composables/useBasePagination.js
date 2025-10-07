@@ -15,12 +15,12 @@ export function useBasePagination({ query, fetch, preHandlers = [], postHandlers
         const _query = { ...query };
         try {
             for (let handler of preHandlers) {
-                handler(_query);
+                await handler(_query);
             }
             const resp = await fetch(_query);
             if (resp?.code === 0) {
                 for (let handler of postHandlers) {
-                    handler(resp);
+                   await handler(resp);
                 }
                 list.value = resp.data.records;
                 total.value = resp.data.total;

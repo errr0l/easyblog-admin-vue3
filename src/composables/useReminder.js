@@ -4,7 +4,7 @@ import { ElMessageBox } from "element-plus";
 import { isPrimitive } from "@/utils/common";
 
 // 表单提示处理模块；
-export function useReminder({ keysChecked = [], original, formData }) {
+export function useReminder({ keysChecked = [], o1, o2 }) {
     const skipComparison = ref(false);
     const message = "内容尚未保存，改动部分将会被丢弃，是否继续？";
     /**
@@ -37,9 +37,13 @@ export function useReminder({ keysChecked = [], original, formData }) {
         return equal;
     }
 
+    function hasChanged() {
+        return compare(o1, o2) === -1;
+    }
+
     function beforeUnloadHandler(e) {
-        const r = compare(formData, original);
-        if (r === -1) {
+        // const r = compare(o1, o2);
+        if (hasChanged()) {
             e.preventDefault();
             e.returnValue = message;
             return e.returnValue;
@@ -67,8 +71,8 @@ export function useReminder({ keysChecked = [], original, formData }) {
     });
 
     onBeforeRouteLeave((to, from, next) => {
-        const r = compare(formData, original);
-        if (r === 0) {
+        // const r = compare(o1, o2);
+        if (!hasChanged()) {
             next();
         }
         else {
@@ -76,5 +80,5 @@ export function useReminder({ keysChecked = [], original, formData }) {
         }
     });
 
-    return { compare, skipComparison };
+    return { compare, skipComparison, hasChanged };
 }
