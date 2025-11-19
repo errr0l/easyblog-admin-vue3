@@ -1,17 +1,17 @@
 import request from '@/utils/request';
 
 // 获取角色分页
-export function getPagination() {
-    return request({
-        url: '/role/pagination',
-        method: 'get'
-    });
-}
+// export function getPagination() {
+//     return request({
+//         url: '/role/pagination',
+//         method: 'get'
+//     });
+// }
 
 // 获取角色列表
-export function getList() {
+export function listAll() {
     return request({
-        url: '/role/list',
+        url: '/role/all',
         method: 'get'
     });
 }

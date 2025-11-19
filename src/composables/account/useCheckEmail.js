@@ -1,4 +1,4 @@
-import { checkEmail as _ } from "@/api/auth";
+import { checkEmail as _ } from "@/api/account";
 
 export function useCheckEmail() {
     async function checkEmail(email) {

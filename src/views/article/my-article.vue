@@ -4,12 +4,12 @@
             <template #header>
                 <el-form :inline="true" :model="query" size="small">
                     <el-form-item label="标题">
-                        <el-input v-model="query.keyword" placeholder="请输入" clearable></el-input>
+                        <el-input v-model="query.keyword" placeholder="请输入" clearable style="width: 172px"></el-input>
                     </el-form-item>
                     <el-form-item label="分类">
                         <el-select v-model="query.categoryId" placeholder="请选择" clearable style="width: 172px">
                             <el-option
-                                v-for="item in categoryList"
+                                v-for="item in categories"
                                 :key="item.id"
                                 :label="item.name"
                                 :value="item.id">
@@ -105,33 +105,74 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated, inject, reactive } from "vue";
-import { usePagination, useSubmit, useDel, useCancel, useRouter, useConfirm, useRecover } from "@/composables/article";
-import { useList } from "@/composables/category";
-import { creationTypes, articleStates, DELETED, ARTICLE_STATE_CONFIG, CREATION_TYPE_CONFIG, PENDING, WAITING_FOR_AUDITING, WAITING_FOR_CONFIRMATION } from "./constants";
+import { onActivated, inject } from "vue";
+import { useArticleNavigator } from "./composables/useArticleNavigator";
+import {
+    creationTypes,
+    articleStates,
+    DELETED,
+    ARTICLE_STATE_CONFIG,
+    CREATION_TYPE_CONFIG,
+    PENDING,
+    WAITING_FOR_AUDITING,
+    WAITING_FOR_CONFIRMATION,
+    WAITING_FOR_PUBLICATION
+} from "./constants";
+import { useCategory } from "@/composables/useCategory";
+import * as articleApi from "@/api/article";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { useArticlePagination } from "@/composables/article/useArticlePagination";
 
-// 查询参数
-const query = reactive({
-    size: 10,
-    current: 1,
-    categoryId: "",
-    states: [],
-    creationType: "",
-    keyword: "",
-    excludedState: DELETED
-});
-
-const { list, total, queryPagination, currentChange, search } = usePagination({ query });
-const { submit } = useSubmit();
-const { confirm } = useConfirm();
-const { del } = useDel({ refresh: queryPagination });
-const { cancel } = useCancel();
-const { edit, add } = useRouter();
-const { list: categoryList } = useList();
-const { recover } = useRecover();
+const { list, total, fetchData, currentChange, search, query } = useArticlePagination();
+const { edit, add } = useArticleNavigator();
+const { listAll, list: categories } = useCategory();
 const getDefaultImage = inject('getDefaultImage');
 
 onActivated(() => {
-    queryPagination();
+    fetchData();
+    listAll();
 });
+
+// 提交审核
+async function submit(row) {
+    const resp = await articleApi.submit({ id: row.id });
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+        row.state = WAITING_FOR_AUDITING;
+    }
+}
+
+async function confirm(row) {
+    const resp = await articleApi.confirm({ id: row.id });
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+        row.state = WAITING_FOR_PUBLICATION;
+    }
+}
+
+function del(row) {
+    ElMessageBox.confirm("确认删除吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+    }).then(async () => {
+        const resp = await articleApi.del({ id: row.id });
+        if (resp?.code === 0) {
+            ElMessage.success("操作成功");
+            row.state = DELETED;
+        }
+    });
+}
+
+function cancel(row) {
+    ElMessageBox.confirm(`文章[${ARTICLE_STATE_CONFIG[row.state].text}]，确认撤销吗？`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+    }).then(async () => {
+        const resp = await articleApi.cancel({ id: row.id });
+        if (resp?.code === 0) {
+            ElMessage.success("操作成功");
+            row.state = PENDING;
+        }
+    });
+}
 </script>

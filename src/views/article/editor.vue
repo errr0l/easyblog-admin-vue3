@@ -28,7 +28,7 @@
                 <el-form-item label="分类">
                     <el-select v-model="formData.categoryId" placeholder="请选择">
                         <el-option
-                            v-for="item in categoryList"
+                            v-for="item in categories"
                             :key="item.id"
                             :label="item.name"
                             :value="item.id">
@@ -107,21 +107,25 @@
     </div>
 </template>
 <script setup>
-import { ref, computed, watch, reactive } from "vue";
+import { ref, computed, watch, reactive, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { MdEditor, MdPreview } from 'md-editor-v3';
+import { ElMessage } from "element-plus";
+import "md-editor-v3/lib/style.css";
+import "md-editor-v3/lib/preview.css";
+
 import { OPINION_CONFIG, CREATION_TYPE_CONFIG, REPRINT, ORIGINAL } from "./constants";
 import { USER, ADMIN } from "@/constants/general";
 import { useTag } from "./composables/useTag";
 import { useElUpload } from "@/composables/useElUpload";
 import { addIdentityForImagePath } from "@/utils/common";
-import { MdEditor, MdPreview } from 'md-editor-v3';
 import { useMarkdownEditor } from "@/composables/useMarkdownEditor";
-import { useDetail, useAudit, useSaveDraft, useSave, useUpdate, useDialog, useRouter as useArticleRouter } from "@/composables/article";
-import { useList } from "@/composables/category";
-import { useImportMdStyle } from "./composables/useImportMdStyle";
-// import { useDebouncedRef } from "@/composables/useDebouncedRef";
 
-const route = useRoute();
+import { useAuditArticle } from "@/composables/article/useAuditArticle";
+import * as articleApi from "@/api/article";
+import { useArticleNavigator } from "@/views/article/composables/useArticleNavigator";
+import { useCategory } from "@/composables/useCategory";
+
 const defaultFormData = {
     id: "",
     title: "",
@@ -136,21 +140,28 @@ const defaultFormData = {
     sort: ""
 };
 
+const opinionsSorted = Object.values(OPINION_CONFIG).sort((a, b) => b.value - a.value);
+
+const formData = reactive({ ...defaultFormData });
+const original = reactive({});
+const auditingDialogVisible = ref(false);
+const settingsDialogVisible = ref(false);
+const cover = ref("");
+const skipComparison = ref(false);
+const image = ref("");
+
+const isReprint = computed(() => formData.creationType === REPRINT);
+
+const route = useRoute();
+
 const { id, type = USER } = route.query;
 const isUser = type === USER;
-const skipComparison = ref(false);
-const formData = reactive({ ...defaultFormData });
-const { original, loading } = useDetail({ formData, id, type });
-const { auditingDialogVisible, settingsDialogVisible } = useDialog();
-const { audit, formData: auditFormData } = useAudit({ dialogVisible: auditingDialogVisible, id });
-const { saveDraft } = useSaveDraft({ formData, skipComparison });
-const { save } = useSave({ formData, skipComparison });
-const { update } = useUpdate({ formData, skipComparison });
-const { back } = useArticleRouter();
-const { list: categoryList } = useList();
+
+const { back } = useArticleNavigator();
+const { audit, formData: auditFormData } = useAuditArticle({ dialogVisible: auditingDialogVisible });
+const { list: categories, listAll } = useCategory();
 const { tags, tag, tagInput, tagInputVisible, showTagInput, addTag, removeTag } = useTag({ formData });
 
-const cover = ref("");
 const { createHttpRequest, onSuccess } = useElUpload();
 const coverHttpRequest = createHttpRequest({
     path: cover,
@@ -158,33 +169,69 @@ const coverHttpRequest = createHttpRequest({
     type: 2
 });
 
-const image = ref("");
 const { createOnUploadImg } = useMarkdownEditor();
 const onUploadImg = createOnUploadImg({
     path: image,
     pathHandler: addIdentityForImagePath,
     type: 2
 });
-const isReprint = computed(() => formData.creationType === REPRINT);
 
-function saveOrUpdate() {
-    formData.id ? update() : save();
-}
-const opinionsSorted = Object.values(OPINION_CONFIG).sort((a, b) => b.value - a.value);
-useImportMdStyle(type);
-
-// const content = useDebouncedRef(formData.content, 2000);
 // 同步cover
 watch(cover, () => {
     formData.cover = cover.value;
 });
+
+onMounted(() => {
+    if (id) {
+        getArticle(id);
+    }
+    listAll();
+});
+
+function saveOrUpdate() {
+    formData.id ? update() : create();
+}
+
+async function getArticle(id) {
+    let resp = await articleApi.getDetail(id)
+    if (resp?.code === 0) {
+        resp.data.creationType = resp.data.creationType ? +resp.data.creationType : ORIGINAL;
+        resp.data.commentable = resp.data.commentable ? +resp.data.commentable : 0;
+        Object.assign(formData, resp.data);
+        Object.assign(original, resp.data);
+    }
+}
+
+async function create() {
+    const resp = await articleApi.create(formData);
+    if (resp?.code === 0) {
+        ElMessage.success('操作成功');
+        skipComparison.value = true;
+        back();
+    }
+}
+
+async function saveDraft() {
+    const resp = await (formData.id ? articleApi.update(formData) : articleApi.createDraft(formData));
+    if (resp.code === 0) {
+        ElMessage.success('操作成功');
+        skipComparison.value = true;
+        back();
+    }
+}
+
+async function update() {
+    const resp = await articleApi.update(formData);
+    if (resp?.code === 0) {
+        ElMessage.success('操作成功');
+        skipComparison.value = true;
+        back();
+    }
+}
 </script>
 
 <style scoped>
 :deep(#preview-only-preview) {
     padding: 15px 20px;
 }
-/*:deep(.md-editor-preview-wrapper) {*/
-/*    overflow: visible;*/
-/*}*/
 </style>

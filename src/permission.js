@@ -2,13 +2,11 @@ import router from './router';
 import NProgress from 'nprogress';
 import getPageTitle from '@/utils/get-page-title';
 
-import { useAppStore } from "./store/app";
-
 import 'nprogress/nprogress.css';
-import { useConfig } from "@/composables/useConfig";
+import { useAppStore } from "@/store/app";
+import { ElMessage } from "element-plus";
 
-const pathsWithoutRoutes = ['/login', '/oauth2/callback', '/404', '/register', '/error'];
-let appStore;
+const whiteList = ['/login', '/404', '/error'];
 
 // NProgress Configuration
 NProgress.configure({ showSpinner: false });
@@ -20,24 +18,24 @@ router.beforeEach(async (to, from, next) => {
         next();
         return;
     }
-    if (!appStore) {
-        appStore = useAppStore();
-    }
+    const appStore = useAppStore();
     // 获取配置信息，并初始化【用户相关】
     // 以当前项目的逻辑来说，由于只会加载当前用户拥有的菜单，所以不会存在【无权限访问某个页面】的情况（即存在404，而不存在403），因此此处不需要添加权限判断逻辑；
-    if (!appStore.configQueried) {
-        if (!(await useConfig())) {
+    if (!appStore.getConfig()) {
+        if (!(await appStore.loadConfig())) {
             next({
                 path: '/error',
                 query: { ...configErrorQuery }
             });
             return;
         }
+        else {
+            appStore.auth.init();
+        }
     }
-
-    if (!appStore.permissionStore.queried && !pathsWithoutRoutes.includes(to.path)) {
-        await appStore.permissionStore.getRoutes();
-        if (appStore.permissionStore.queried) {
+    if (!appStore.isAuthenticated && !whiteList.includes(to.path)) {
+        await appStore.auth.checkAuth();
+        if (appStore.isAuthenticated) {
             next({ ...to, replace: true });
         }
         else {

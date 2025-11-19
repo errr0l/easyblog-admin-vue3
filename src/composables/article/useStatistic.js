@@ -1,11 +1,11 @@
-import { onMounted, reactive } from "vue";
-import { getStatistic as _ } from "@/api/article";
+import { reactive } from "vue";
+import { getStatistic as getStatisticApi } from "@/api/article";
 
 export function useStatistic() {
     // 文章统计
     const statistic = reactive({});
     async function getStatistic() {
-        const resp = await _();
+        const resp = await getStatisticApi();
         if (resp?.code === 0) {
             const _statistic = {};
             for (const item of resp.data) {
@@ -14,10 +14,6 @@ export function useStatistic() {
             Object.assign(statistic, _statistic);
         }
     }
-
-    onMounted(() => {
-        getStatistic();
-    });
 
     return { getStatistic, statistic };
 }

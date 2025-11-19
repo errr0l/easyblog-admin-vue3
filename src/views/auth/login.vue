@@ -13,38 +13,29 @@
                     <h2 class="item greeting mg-b-10 unselectable" v-html="loginGreeting"></h2>
                     <div class="item mg-b-5">
                         <div>
-                            <input class="username input-1" v-model="formData.username" placeholder="用户名/邮箱" type="text">
+                            <input class="username input-1" v-model="credentials.username" placeholder="用户名/邮箱" type="text">
                         </div>
                         <div>
-                            <input class="password input-1" style="width: 75%;" v-model="formData.password" placeholder="密码" type="password">
+                            <input class="password input-1" style="width: 75%;" v-model="credentials.password" placeholder="密码" type="password">
                         </div>
                         <div>
-                            <input class="input-1" style="width: 50%;" v-model="formData.captcha" placeholder="验证码" type="text">
+                            <input class="input-1" style="width: 50%;" v-model="credentials.captcha" placeholder="验证码" type="text">
                         </div>
                     </div>
                     <div class="item" style="margin-bottom: 15px;">
                         <div class="captcha-wrapper" style="height: 30px;">
-                            <!-- <img class="captcha" :src="captchaBase64" alt="captcha" @click="refreshCaptcha" /> -->
-                            <p id="wait" v-if="!captcha.image" style="cursor: pointer; height: 28px; font-size: 13px; color: #fa7872;" @click="refresh">点击获取验证码</p>
-                            <img class="captcha" v-else :src="captcha.image" alt="captcha" @click="refresh" />
+                            <p id="wait" v-if="!captcha.image" style="cursor: pointer; height: 28px; font-size: 13px; color: #fa7872;" @click="handleRefresh">点击获取验证码</p>
+                            <img class="captcha" v-else :src="captcha.image" alt="captcha" @click="handleRefresh" />
                         </div>
                     </div>
                     <div class="item mg-b-5">
-                        <el-button style="width: 100%;" type="primary" size="small" @click="login">登陆</el-button>
+                        <el-button style="width: 100%;" type="primary" size="small" @click="handleLogin">{{ authStore.loading ? '登陆中...' : '登录' }}</el-button>
                     </div>
-                    <!--                    <div class="item forget mg-b-10">-->
-                    <!--                        <p class="t-r">-->
-                    <!--                            <span class="c-p link">忘记密码?</span>-->
-                    <!--                        </p>-->
-                    <!--                    </div>-->
                     <div class="item forget mg-b-10">
                         <p>
-                            <span class="c-p link" style="cursor: pointer;" @click="authorize">YA授权登录</span>
+                            <span class="c-p link" style="cursor: pointer;">YA授权登录</span>
                         </p>
                     </div>
-                    <!--                    <div class="item message">-->
-                    <!--                        <span v-text="message"></span>-->
-                    <!--                    </div>-->
                     <div class="item t-a copyright unselectable">
                         {{ copyright }}
                     </div>
@@ -55,30 +46,59 @@
 </template>
 
 <script setup>
-import { useLogin, useOauth2Authorize, useCaptcha } from "@/composables/auth";
 import { reactive, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+
+import { useCaptcha } from "@/composables/useCaptcha";
+import { useAuth } from "@/store/useAuth";
 import { useSettingsStore } from "@/store/settings";
+
+const router = useRouter();
+const route = useRoute();
 
 const settingsStore = useSettingsStore();
 const { copyright, loginGreeting, logo, cover, title } = settingsStore;
 
-const formData = reactive({
+const credentials = reactive({
     username: "",
     password: "",
     captcha: "",
     uuid: ""
 });
-const { login } = useLogin({ formData });
-const { getCaptcha, refresh, captcha } = useCaptcha();
-const { authorize } = useOauth2Authorize();
+// 不要解构store：https://pinia.vuejs.org/core-concepts/#composition-api-store；
+// 或者使用storeToRefs包裹；
+const authStore = useAuth();
+const { refresh, captcha, loading: captchaLoading } = useCaptcha();
 
+// 同步uuid
 watch(() => captcha.uuid, (_new) => {
-    formData.uuid = _new;
+    credentials.uuid = _new;
 });
 
-// onMounted(() => {
-//     getCaptcha();
-// });
+const handleLogin = async () => {
+    if (authStore.loading) {
+        return;
+    }
+    if (!credentials.username || !credentials.password) {
+        return ElMessage.error("账号或密码不能空");
+    }
+    if (!credentials.captcha) {
+        return ElMessage.error("验证码不能空");
+    }
+    await authStore.authenticate(credentials);
+    if (!authStore.error) {
+        ElMessage.success("登陆成功");
+        router.push({ path: route.query.redirect || '/' });
+    }
+};
+
+const handleRefresh = () => {
+    if (captchaLoading.value) {
+        return;
+    }
+    refresh();
+};
 </script>
 
 <style lang="scss" scoped>

@@ -15,7 +15,7 @@
                     <el-form-item label="分类">
                         <el-select v-model="query.categoryId" placeholder="请选择" clearable style="width: 172px">
                             <el-option
-                                v-for="item in categoryList"
+                                v-for="item in categories"
                                 :key="item.id"
                                 :label="item.name"
                                 :value="item.id">
@@ -93,7 +93,7 @@
                 <el-table-column align="center" label="操作" fixed="right" width="180">
                     <template #="{ row }">
                         <el-button link size="small" @click="audit(row)">编辑</el-button>
-                        <el-button link v-if="row.state !== DELETED" size="small" @click="del(row)">删除</el-button>
+                        <!-- <el-button link v-if="row.state !== DELETED" size="small" @click="del(row)">删除</el-button> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -115,19 +115,19 @@
                 <p v-if="progress.message">{{ progress.message }}</p>
             </div>
             <div class="t-r" style="margin-top: 20px;">
-                <el-button type="primary" size="small" @click="close">确定</el-button>
+                <el-button type="primary" size="small" @click="closeDialog">确定</el-button>
             </div>
         </el-dialog>
 
         <el-dialog v-model="publishDialogVisible" title="发布文章" width="40%" class="x-el-dialog styl-1">
-            <el-form :model="formData" label-width="auto" size="small">
+            <el-form :model="publishFormData" label-width="auto" size="small">
                 <el-form-item label="上传至Github">
-                    <el-radio v-model="formData.toRemote" :label="1">是</el-radio>
-                    <el-radio v-model="formData.toRemote" :label="0">否</el-radio>
+                    <el-radio v-model="publishFormData.toRemote" :label="1">是</el-radio>
+                    <el-radio v-model="publishFormData.toRemote" :label="0">否</el-radio>
                 </el-form-item>
                 <el-form-item label="创建html规则">
-                    <el-radio v-model="formData.force" :label="0">自动</el-radio>
-                    <el-radio v-model="formData.force" :label="1">强制</el-radio>
+                    <el-radio v-model="publishFormData.force" :label="0">自动</el-radio>
+                    <el-radio v-model="publishFormData.force" :label="1">强制</el-radio>
                 </el-form-item>
             </el-form>
             <div style="text-align: right;">
@@ -139,29 +139,40 @@
 </template>
 
 <script setup>
-import { DELETED, WAITING_FOR_AUDITING, CREATION_TYPE_CONFIG, ARTICLE_STATE_CONFIG, articleStates, creationTypes } from "@/views/article/constants";
-import { computed, inject, reactive, ref } from "vue";
+import { WAITING_FOR_AUDITING, CREATION_TYPE_CONFIG, ARTICLE_STATE_CONFIG, articleStates, creationTypes } from "@/views/article/constants";
+import { inject, onMounted, ref } from "vue";
 
-import { usePaginationWithAuthor, useStatistic, useDel, useRouter } from "@/composables/article";
-import { usePublish, useProgressDialog } from "@/composables/app";
-import { useList } from "@/composables/category";
+import { useStatistic } from "@/composables/article/useStatistic";
+import { usePublish } from "@/composables/app/usePublish";
+import { useCategory } from "@/composables/useCategory";
+import { useArticlePagination } from "@/composables/article/useArticlePagination";
+import { useArticleNavigator } from "@/views/article/composables/useArticleNavigator";
 const getDefaultImage = inject('getDefaultImage');
-const query = reactive({
-    size: 10,
-    current: 1,
-    categoryId: "",
-    states: [WAITING_FOR_AUDITING], // 一般情况下，管理员只要这俩即可
-    creationType: "",
-    title: "",
-    excludedState: DELETED
-});
-const { list, total, search, queryPagination, currentChange, searchByState } = usePaginationWithAuthor({ query });
-const { list: categoryList } = useList();
-const { statistic } = useStatistic();
+
 const publishDialogVisible = ref(false);
 const progressDialogVisible = ref(false);
-const { publish, formData, progress, resetProgress } = usePublish({ progressDialogVisible, dialogVisible: publishDialogVisible });
-const { close } = useProgressDialog({ progressDialogVisible, refresh: queryPagination, resetProgress });
-const { del } = useDel({ refresh: queryPagination });
-const { audit } = useRouter();
+
+const { list: categories, listAll } = useCategory();
+const { fetchData, list, total, search, currentChange, searchByState, query } = useArticlePagination();
+const { statistic, getStatistic } = useStatistic();
+const { publish, formData: publishFormData, progress, resetProgress } = usePublish({ progressDialogVisible, dialogVisible: publishDialogVisible });
+const { audit } = useArticleNavigator();
+
+// 修改查询条件，以管理员角度请求
+function setQuery() {
+    query['scope'] = 'all';
+    query['withAuthorName'] = true;
+}
+setQuery();
+onMounted(() => {
+    listAll();
+    fetchData();
+    getStatistic();
+});
+
+function closeDialog() {
+    progressDialogVisible.value = false;
+    resetProgress();
+    refresh();
+}
 </script>

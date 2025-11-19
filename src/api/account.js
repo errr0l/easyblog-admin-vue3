@@ -1,27 +1,27 @@
 import request from '@/utils/request';
 
-export function login(data) {
-    return request({
-        url: '/account/login',
-        method: 'post',
-        data
-    });
-}
+// export function login(data) {
+//     return request({
+//         url: '/account/login',
+//         method: 'post',
+//         data
+//     });
+// }
 
-export async function refresh(data) {
-    return request({
-        url: '/account/refresh',
-        method: 'post',
-        data
-    });
-}
+// export async function refresh(data) {
+//     return request({
+//         url: '/account/refresh',
+//         method: 'post',
+//         data
+//     });
+// }
 
-export function logout() {
-    return request({
-        url: '/account/logout',
-        method: 'post'
-    });
-}
+// export function logout() {
+//     return request({
+//         url: '/account/logout',
+//         method: 'post'
+//     });
+// }
 
 // 获取账户信息
 export function getAccountInfo() {
@@ -53,6 +53,43 @@ export function updateAvatar(data) {
 export function updatePassword(data) {
     return request({
         url: '/account/updatePassword',
+        method: 'post',
+        data
+    });
+}
+
+// 检查邮箱【注册时】
+export function checkEmail(email) {
+    return request({
+        url: '/account/checkEmail',
+        method: 'get',
+        params: {
+            email
+        }
+    });
+}
+
+export function getCaptcha() {
+    return request({
+        url: '/captcha/',
+        method: 'get'
+    });
+}
+
+// 检查邮箱【注册时】
+export function checkUsername(username) {
+    return request({
+        url: '/account/check/username',
+        method: 'get',
+        params: {
+            username
+        }
+    });
+}
+
+export function sendEmailCode(data) {
+    return request({
+        url: '/captcha/emailVerifyCode',
         method: 'post',
         data
     });

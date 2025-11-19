@@ -1,18 +1,18 @@
 import request from '@/utils/request';
 
 // 获取文章分类列表
-export function getList(data) {
+export function listAll(query) {
     return request({
-        url: '/category/list',
+        url: '/category/all',
         method: 'get',
-        params: data
+        params: query
     });
 }
 
-// 保存分类
-export function save(data) {
+// 创建分类
+export function create(data) {
     return request({
-        url: '/category/save',
+        url: '/category/create',
         method: 'post',
         data
     });

@@ -25,14 +25,14 @@
                 </el-table-column>
             </el-table>
 
-            <div style="margin-top: 10px;">
-                <el-pagination
-                    background
-                    :page-size="query.size"
-                    layout="prev, pager, next"
-                    :total="total" style="float: right;">
-                </el-pagination>
-            </div>
+<!--            <div style="margin-top: 10px;">-->
+<!--                <el-pagination-->
+<!--                    background-->
+<!--                    :page-size="query.size"-->
+<!--                    layout="prev, pager, next"-->
+<!--                    :total="total" style="float: right;">-->
+<!--                </el-pagination>-->
+<!--            </div>-->
         </el-card>
 
         <el-dialog v-model="dialogVisible" title="新增/编辑角色" width="40%" class="x-el-dialog styl-1" size="small">
@@ -59,19 +59,20 @@
             </el-form>
             <div style="text-align: right;">
                 <el-button size="small" @click="dialogVisible = false">取消</el-button>
-                <el-button size="small" type="primary" v-if="isEditing" @click="update">确定</el-button>
-                <el-button size="small" type="primary" v-else @click="save">确定</el-button>
+                <el-button size="small" type="primary" @click="saveOrUpdate">确定</el-button>
             </div>
         </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { useDel, usePagination, useUpdate, useDialog, useSave } from "@/composables/role";
 import { computed, onMounted, reactive, ref } from "vue";
 import { copyProperties, getDifference } from "@/utils/common";
-import { useRolePermissionList, useList } from "@/composables/permission";
 import { PERMISSION_MENU } from "@/constants/general";
+import { useRole } from "@/composables/useRole";
+import { del as delApi, save as saveApi, update as updateApi } from "@/api/role";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { usePermissionTree } from "@/composables/permission/usePermissionTree";
 
 const defaultFormData = {
     id: "",
@@ -86,17 +87,13 @@ const query = reactive({
 
 const treeRef = ref(null);
 const formData = reactive({ ...defaultFormData });
-const { queryPagination, list, total } = usePagination({ query });
-const { getRolePermissionList, assigned } = useRolePermissionList();
+const { getAllRoles, roles: list, assigned, getRolePermissions } = useRole();
 
-// 为formData设置选中的权限
-function setAssigning() {
-    dialogVisible.value = false;
-    formData.assigning = treeRef.value?.getCheckedKeys();
-}
+const saveOrUpdate = () => {
+    formData.id ? update() : save();
+};
 
-// 设置选中和移除的权限
-function setRemovingAndAssigning() {
+const save = async () => {
     dialogVisible.value = false;
     const checked = treeRef.value?.getCheckedKeys();
     // 取与assigned集合的差集：
@@ -104,30 +101,42 @@ function setRemovingAndAssigning() {
     formData.assigning = getDifference(checked, assigned.value);
     // 要移除的权限；
     formData.removing = getDifference(assigned.value, checked);
-}
+    const resp = await saveApi(formData);
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+        getAllRoles();
+    }
+    else {
+        ElMessage.error("操作失败");
+    }
+};
 
-const { save } = useSave({
-    formData, refresh: queryPagination, preHandlers: [setRemovingAndAssigning]
-});
+const update = async () => {
+    dialogVisible.value = false;
+    formData.assigning = treeRef.value?.getCheckedKeys();
+    const resp = await updateApi(formData);
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+        getAllRoles();
+    }
+    else {
+        ElMessage.error("操作失败");
+    }
+};
+
 function resetFormData() {
     Object.assign(formData, defaultFormData);
 }
 
 function setFormData(row) {
     Object.assign(formData, copyProperties(row, { ...defaultFormData }))
-    getRolePermissionList(row.id)
+    getRolePermissions(row.id)
         .then(() => {
             treeRef.value?.setCheckedKeys(assigned.value);
         });
 }
-const { dialogVisible, showDialogForEditing, showDialogForAdding, isEditing } = useDialog({
-    formData, setFormData, resetFormData
-});
-const { del } = useDel({ refresh: queryPagination });
-const { update } = useUpdate({
-    formData, refresh: queryPagination, preHandlers: [setAssigning]
-});
-const { getList, list: permissionList } = useList();
+
+const { getPermissionTree, tree: permissionList } = usePermissionTree();
 
 const expended = computed(() => {
     return permissionList.value.map(item => item.id)
@@ -138,9 +147,37 @@ const props = {
 };
 
 onMounted(() => {
-    queryPagination();
-    // getList();
+    getAllRoles();
+    getPermissionTree();
 });
+
+const dialogVisible = ref(false);
+const isEditing = ref(false);
+
+function showDialogForAdding() {
+    dialogVisible.value = true;
+    resetFormData();
+}
+
+function showDialogForEditing(row) {
+    dialogVisible.value = true;
+    setFormData(row);
+}
+
+function del(data) {
+    ElMessageBox.confirm("确认删除吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+    }).then(async () => {
+        const resp = await delApi({ id: data.id });
+        if (resp?.code !== 0) {
+            ElMessage.error("操作失败");
+            return;
+        }
+        ElMessage.success("操作成功");
+        getAllRoles();
+    });
+}
 </script>
 
 <style lang="scss" scoped>

@@ -7,7 +7,7 @@
                         <el-input v-model="query.name" placeholder="请输入"></el-input>
                     </el-form-item>
                     <el-form-item>
-                        <el-button size="small" @click="queryList">查询</el-button>
+                        <el-button size="small" @click="listAll">查询</el-button>
                         <el-button type="primary" size="small" @click="showDialogForAdding()">新增</el-button>
                     </el-form-item>
                 </el-form>
@@ -57,18 +57,17 @@
             </el-form>
             <div style="text-align:right;">
                 <el-button @click="dialogVisible = false" size="small">取消</el-button>
-                <el-button type="primary" size="small" v-if="isEditing" @click="update">确定</el-button>
-                <el-button type="primary" size="small" v-else @click="save">确定</el-button>
+                <el-button type="primary" size="small" @click="saveOrUpdate">确定</el-button>
             </div>
         </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { useList, useCategoryDialog, useDel, useSave, useUpdate } from "@/composables/category";
-import { reactive, ref, inject, watch } from "vue";
+import { reactive, ref, inject, watch, onMounted } from "vue";
 import { useElUpload } from "@/composables/useElUpload";
 import { addIdentityForImagePath } from "@/utils/common";
+import { useCategory } from "@/composables/useCategory";
 
 const defaultFormData = {
     id: "",
@@ -76,23 +75,18 @@ const defaultFormData = {
     description: "",
     cover: ""
 };
+
+const dialogVisible = ref(false);
+const isEditing = ref(false);
 const formData = reactive({ ...defaultFormData });
 const query = reactive({
     name: ""
 });
-function resetFormData() {
-    if (formData.id) {
-        Object.assign(formData, defaultFormData);
-    }
-}
-const { list, queryList } = useList({ query });
-const { del } = useDel({ refresh: queryList });
-const { save } = useSave({ formData, refresh: queryList });
-const { showDialogForAdding, showDialogForEditing, dialogVisible, isEditing } = useCategoryDialog({ formData, resetFormData });
-const { update } = useUpdate({ formData, refresh: queryList, dialogVisible });
+const cover = ref("");
+
+const { list, listAll, del, update, create } = useCategory();
 const { createHttpRequest, onSuccess } = useElUpload();
 
-const cover = ref("");
 const httpRequest = createHttpRequest({
     path: cover,
     postHandler: addIdentityForImagePath,
@@ -105,4 +99,32 @@ const getDefaultImage = inject('getDefaultImage');
 watch(cover, (_new, _old) => {
     formData.cover = _new;
 });
+
+onMounted(() => {
+    listAll(query);
+});
+
+const saveOrUpdate = () => {
+    if (formData.id) {
+        update(formData);
+    }
+    else {
+        create(formData);
+    }
+};
+
+function showDialogForEditing(row) {
+    dialogVisible.value = true;
+    Object.assign(formData, row);
+}
+function showDialogForAdding() {
+    dialogVisible.value = true;
+    resetFormData();
+}
+
+function resetFormData() {
+    if (formData.id) {
+        Object.assign(formData, defaultFormData);
+    }
+}
 </script>

@@ -5,7 +5,7 @@
         <div class="right-menu">
             <div class="username x-el-button-text">
                 <el-link>你好，</el-link>
-                <el-link type="primary" v-if="username">{{ username }}</el-link>
+                <el-link type="primary" v-if="isAuthenticated">{{ userDetails.username }}</el-link>
                 <el-link v-else @click="toLogin">请登录</el-link>
             </div>
             <el-dropdown class="avatar-container" trigger="click">
@@ -20,7 +20,7 @@
                                 主页
                             </el-dropdown-item>
                         </router-link>
-                        <el-dropdown-item divided @click.native="logout">
+                        <el-dropdown-item divided @click.native="handleLogout">
                             <span style="display:block;">登出</span>
                         </el-dropdown-item>
                     </el-dropdown-menu>
@@ -31,26 +31,46 @@
 </template>
 
 <script setup>
+import { computed, inject } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessageBox } from "element-plus";
+import { storeToRefs } from "pinia";
+
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
-import { useUserStore } from "@/store/user";
 import { useAppStore } from "@/store/app";
-import { computed, inject } from "vue";
-import { useLogout, useLogin } from "@/composables/auth";
+import { useAuth } from "@/store/useAuth";
+import { useAccount } from "@/composables/useAccount";
 
-const userStore = useUserStore();
+const router = useRouter();
+const authStore = useAuth();
+const { isAuthenticated } = storeToRefs(authStore);
+const { logout } = authStore;
+const { userDetails } = useAccount();
 const appStore = useAppStore();
 const getDefaultImage = inject("getDefaultImage");
 const sidebar = computed(() => appStore.sidebar);
+
 const avatar = computed(() => {
-    const avatar = userStore.user.avatar;
+    const avatar = userDetails.value.avatar;
     return avatar ? avatar : getDefaultImage();
 });
-const username = computed(() => userStore.user.username || "");
 
 const toggleSideBar = () => appStore.toggleSideBar();
-const { logout } = useLogout();
-const { toLogin } = useLogin();
+
+const handleLogout = () => {
+    ElMessageBox
+        .confirm("确认登出系统？", "提示")
+        .then(() => {
+            logout();
+            toLogin();
+        }).catch(() => {
+        });
+};
+
+const toLogin = () => {
+    router.push("/login");
+};
 </script>
 
 <style lang="scss" scoped>

@@ -1,11 +1,11 @@
-import { useRoute, useRouter as _useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ADMIN, USER } from "@/constants/general";
 import { ARTICLE_STATE_CONFIG, WAITING_FOR_AUDITING, WAITING_FOR_PUBLICATION } from "@/views/article/constants";
 import { ElMessageBox } from "element-plus";
 
 // 如果使用时有歧义，就设别名吧
-export function useRouter() {
-    const router = _useRouter();
+export function useArticleNavigator() {
+    const router = useRouter();
     const route = useRoute();
     // 添加
     function add() {

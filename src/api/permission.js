@@ -1,26 +1,32 @@
 import request from '@/utils/request';
 
 // 获取（已登录）用户的权限【「permission」就当作一个模块名吧】
-export function getAccountPermissionList() {
-    return request({
-        url: `/account/permission/list`,
-        method: 'get'
-    });
-}
+// export function getMyPermissions() {
+//     return request({
+//         url: `/permission/all`,
+//         method: 'get'
+//     });
+// }
 
 // 获取角色权限
-export function getRolePermissionList(roleId) {
+export function getRolePermissions(roleId) {
     return request({
-        url: `/role/${roleId}/permissionList`,
+        url: `/role/${roleId}/permissions`,
         method: 'get'
     });
 }
 
-
-// 获取权限树（包含菜单、功能权限）
-export function getList() {
+// 获取权限列表（包含菜单、功能权限）
+export function getPermissions() {
     return request({
-        url: '/permission/list',
+        url: '/permission/all',
+        method: 'get'
+    });
+}
+
+export function getPermissionTree() {
+    return request({
+        url: '/permission/tree',
         method: 'get'
     });
 }

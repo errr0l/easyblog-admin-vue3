@@ -25,8 +25,9 @@ app.use(createPinia());
 app.use(router);
 
 // 组成ep图标；在菜单中使用时，可以直接提对应了组件名的icon名称（大写）
-for (const [key, value] of Object.entries(ElementPlusIconsVue)) {
-    app.component(key, value);
+for (const key in ElementPlusIconsVue) {
+    const component = ElementPlusIconsVue[key];
+    app.component(key, component);
 }
 
 app.mount("#app");

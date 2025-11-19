@@ -1,57 +1,19 @@
 import request from '@/utils/request';
 
-export function oauth2Login(data) {
+export function authenticate(credentials) {
     return request({
-        url: '/oauth/login',
+        url: '/auth/authenticate',
         method: 'post',
-        data,
-        silence: true,
-        timeout: 10000,
+        data: credentials
     });
 }
 
-export function oauth2Register(data) {
+export async function refresh(token) {
     return request({
-        url: '/oauth/register',
+        url: '/auth/refresh',
         method: 'post',
-        data
-    });
-}
-
-
-// 检查邮箱【注册时】
-export function checkEmail(email) {
-    return request({
-        url: '/account/checkEmail',
-        method: 'get',
-        params: {
-            email
+        data: {
+            refreshToken: token
         }
-    });
-}
-
-export function getCaptcha() {
-    return request({
-        url: '/captcha/',
-        method: 'get'
-    });
-}
-
-// 检查邮箱【注册时】
-export function checkUsername(username) {
-    return request({
-        url: '/account/check/username',
-        method: 'get',
-        params: {
-            username
-        }
-    });
-}
-
-export function sendEmailCode(data) {
-    return request({
-        url: '/captcha/emailVerifyCode',
-        method: 'post',
-        data
     });
 }

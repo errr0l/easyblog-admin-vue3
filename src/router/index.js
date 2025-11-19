@@ -25,16 +25,16 @@ export const constantRoutes = [
             meta: { title: 'Dashboard', icon: 'Compass' }
         }]
     },
-    {
-        path: "/oauth2/callback",
-        component: () => import("@/views/auth/oauth2/callback"),
-        hidden: true
-    },
-    {
-        path: "/register",
-        component: () => import("@/views/auth/register"),
-        hidden: true
-    },
+    // {
+    //     path: "/oauth2/callback",
+    //     component: () => import("@/views/auth/oauth2/callback"),
+    //     hidden: true
+    // },
+    // {
+    //     path: "/register",
+    //     component: () => import("@/views/auth/register"),
+    //     hidden: true
+    // },
     {
         path: '/account',
         component: Layout,

@@ -17,11 +17,11 @@
 
 <script setup>
 import { useOauth2Login } from "@/composables/auth";
-import { useRouter } from "vue-router";
+import { useArticleNavigator } from "vue-router";
 
 const { dialogVisible, error, description, type } = useOauth2Login();
 
-const router = useRouter();
+const router = useArticleNavigator();
 
 function back2Login() {
     router.replace('/login');

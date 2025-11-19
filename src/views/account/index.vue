@@ -24,7 +24,7 @@
                             :on-success="onSuccess">
                             <img v-if="formData.avatar" :src="formData.avatar" class="avatar">
                             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                            </el-upload>
+                        </el-upload>
                     </el-form-item>
                     <el-form-item label="用户名" style="width: 40%;">
                         <el-input v-model="formData.username" placeholder="请输入" />
@@ -41,25 +41,33 @@
     </div>
 </template>
 <script setup>
-import { useAccountInfo, useUpdateAvatar, useUpdateAccountInfo } from "@/composables/account";
-import { useReminder } from "@/composables/useReminder";
+// import { useAccountInfo, useUpdateAvatar, useUpdateAccountInfo } from "@/composables/account";
+import { useAccount } from "@/composables/useAccount";
+// import { useReminder } from "@/composables/useReminder";
 import { onMounted, reactive, ref } from "vue";
 import { MdEditor } from 'md-editor-v3';
 import "md-editor-v3/lib/style.css";
 import { useMarkdownEditor } from "@/composables/useMarkdownEditor";
 import { addIdentityForImagePath } from "@/utils/common";
+import { useUserStore } from "@/store/user";
 
-const defaultFormData = {
-    username: "",
-    email: "",
-    introduction: "",
-    avatar: ""
-};
-const formData = reactive({ ...defaultFormData });
-const { queryAccountInfo, original } = useAccountInfo({ formData });
+const userStore = useUserStore();
+const {
+    queryAccountInfo, accountFormData: formData,
+    updateAvatar, onUploadSuccess: onSuccess,
+    updateAccountInfo
+} = useAccount({ userStore });
+// const defaultFormData = {
+//     username: "",
+//     email: "",
+//     introduction: "",
+//     avatar: ""
+// };
+// const formData = reactive({ ...defaultFormData });
+// const { queryAccountInfo, original } = useAccountInfo({ formData });
 
-const { compare } = useReminder({ original: original, formData, keysChecked: Object.keys(defaultFormData) });
-const { updateAvatar, onSuccess } = useUpdateAvatar({ formData, original });
+// const { compare } = useReminder({ original: original, formData, keysChecked: Object.keys(defaultFormData) });
+// const { updateAvatar, onSuccess } = useUpdateAvatar({ formData, original });
 
 const image = ref("");
 const { createOnUploadImg } = useMarkdownEditor();
@@ -68,9 +76,9 @@ const onUploadImg = createOnUploadImg({
     pathHandler: addIdentityForImagePath,
     type: 2
 });
-const { updateAccountInfo } = useUpdateAccountInfo({
-    formData, refresh: queryAccountInfo, compare, original
-});
+// const { updateAccountInfo } = useUpdateAccountInfo({
+//     formData, refresh: queryAccountInfo, compare, original
+// });
 
 onMounted(() => {
     queryAccountInfo();

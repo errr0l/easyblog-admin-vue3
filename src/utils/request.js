@@ -1,9 +1,9 @@
 import axios from "axios";
-import { refresh } from "@/api/account";
 import { ElMessage as Message, ElMessageBox as MessageBox } from "element-plus";
 import router from "@/router";
-import { useAppStore } from "@/store/app";
 import { getLogger } from "@/utils/logger";
+import { useAppStore } from "@/store/app";
+import { useAuth } from "@/store/useAuth";
 
 const loggerOptions = {
     name: "request.js"
@@ -20,10 +20,9 @@ const axiosRequestConfigMessages = ["axios请求配置：", config];
 if (!config.enableRetrying) {
     axiosRequestConfigMessages.push("；未启用重试机制.");
 }
-getLogger({ ...loggerOptions, delay: 1100 })(axiosRequestConfigMessages);
 
-let retrying = false;
-const queue = [];
+// const { refresh, getRefreshToken, getAccessToken, clearAccessToken, clearRefreshToken } = useAuth();
+// const { getConfig } = useConfig();
 let appStore;
 
 function getAppStore() {
@@ -33,6 +32,20 @@ function getAppStore() {
     appStore = useAppStore();
     return appStore;
 }
+getLogger({ ...loggerOptions, delay: 1100 })(axiosRequestConfigMessages);
+
+let retrying = false;
+const queue = [];
+
+export function toLogin(redirectPath) {
+    logger("跳转登录：" + redirectPath);
+    if (!redirectPath.includes("/login")) {
+        router.replace(`/login?redirect=${redirectPath}`);
+    }
+    else {
+        router.replace(redirectPath);
+    }
+}
 
 /**
  * 登陆弹窗
@@ -40,26 +53,22 @@ function getAppStore() {
  * @param {string} message - 提示文本
  * @param {Object} $route - 路由实例
  */
-function toLogin(message, $route) {
-    if (toLogin.noticed) {
+function popup(message, $route) {
+    if (popup.noticed) {
         return;
     }
-    toLogin.noticed = true;
+    popup.noticed = true;
     MessageBox.confirm(message, "提示", {
         confirmButtonText: "确定"
-    }).then(() => {
-        let redirectPath = $route.fullPath;
-        logger("跳转登录：" + redirectPath);
-        if (!redirectPath.includes("/login")) {
-            router.replace(`/login?redirect=${redirectPath}`);
-        }
-        else {
-            router.replace(redirectPath);
-        }
-    }).catch(() => {
-        logger("用户取消跳转登录.");
-    }).finally(() => {
-        toLogin.noticed = false;
+    })
+    .then(() => {
+        toLogin($route.fullPath);
+    })
+    .catch(() => {
+        logger("用户取消跳转登录");
+    })
+    .finally(() => {
+        popup.noticed = false;
     });
 }
 
@@ -80,7 +89,7 @@ function release(ok) {
 
 /**
  * 通知方法
- * @param {Number} type - 通知类型；1=toLogin，2=Message.error
+ * @param {Number} type - 通知类型；1=popup，2=Message.error
  * @param {Object} resp - 响应对象
  * @returns
  */
@@ -92,7 +101,7 @@ const notice = (type, resp) => {
     const data = resp.data;
     // 目前只有两种通知类型：1=前往登陆提示，2=默认提示
     if (type === 1) {
-        toLogin(data.message, router.currentRoute.value);
+        popup(data.message, router.currentRoute.value);
     }
     else if (type === 2) {
         Message({
@@ -147,8 +156,8 @@ async function respHandler(resp) {
             return data;
         // 未登录或accessToken过期
         case 40101:
-            const store = getAppStore();
-            const refreshToken = store.refreshToken;
+            const { getRefreshToken, refresh } = useAuth();
+            const refreshToken = getRefreshToken();
             // 如果没有刷新token，就提示
             if (!refreshToken) {
                 logger("刷新令牌不存在，需重新登录.");
@@ -163,39 +172,21 @@ async function respHandler(resp) {
             if (!retrying) {
                 retrying = true;
                 logger("访问令牌已过期，尝试刷新令牌.");
-                try {
-                    const refreshResp = await refresh({ refreshToken });
-                    if (refreshResp?.code === 0) {
-                        logger("刷新成功，将重新发起请求.");
-                        const payload = {
-                            data: { ...refreshResp.data }
-                        };
-                        store.userStore.cache(payload);
-                        release(true);
-                        return service(resp.config);
-                    }
-                    else {
-                        logger("刷新失败：" + (refreshResp.message || ""), 'error');
-                    }
+                if (await refresh(refreshToken)) {
+                    logger("刷新成功，将重新发起请求.");
+                    release(true);
+                    return service(resp.config);
                 }
-                catch (error) {
-                    logger(["刷新失败：", error], 'error');
+                else {
+                    logger("刷新失败", 'error');
                 }
-                finally {
-                    retrying = false;
-                }
+                retrying = false;
             }
             else {
                 logger("等待刷新令牌：" + resp.config.url);
                 return new Promise((resolve, reject) => {
                     queue.push((ok) => {
-                        // 请求成功
-                        if (ok) {
-                            resolve(service(resp.config));
-                        }
-                        else {
-                            reject("refreshing failure.");
-                        }
+                        ok ? resolve(service(resp.config)) : reject("刷新失败");
                     });
                 });
             }
@@ -203,8 +194,8 @@ async function respHandler(resp) {
         case 40198:
         case 40199:
             notice(1, resp);
-            logger("刷新令牌已过期，需重新登录：" + getAppStore().refreshToken);
-            getAppStore().userStore.cache({ data: { refreshToken: "" } });
+            logger("令牌已过期，请重新登录");
+            useAuth().clearRefreshToken();
             break;
         default:
             logger("未知处理的错误：" + (data.message || ""), 'error');
@@ -230,7 +221,6 @@ service.interceptors.response.use(
         if (error.response) {
             return respHandler(error.response);
         }
-
         const code = error.code;
         const message = error.message;
         // 可以拓展更多的需要重发请求的情况

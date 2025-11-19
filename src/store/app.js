@@ -2,8 +2,7 @@ import { defineStore } from "pinia";
 
 import Cookies from "js-cookie";
 
-import { useUserStore } from "./user";
-import { usePermissionStore } from "./permission";
+import { useAuth } from "./useAuth";
 
 const sidebarStatus = Cookies.get("sidebarStatus");
 export const useAppStore = defineStore("app", {
@@ -13,18 +12,13 @@ export const useAppStore = defineStore("app", {
             withoutAnimation: false
         },
         device: "desktop",
-        config: {},
-        configQueried: false,
-        userStore: useUserStore(),
-        permissionStore: usePermissionStore()
+        config: null,
+        auth: useAuth(),
     }),
     getters: {
-        token: state => state.userStore.accessToken,
-        refreshToken: state => state.userStore.refreshToken,
-        accessToken() {
-            return this.token;
-        },
-        routes: state => state.permissionStore.routes
+        accessToken: state => state.auth.authTokens.accessToken,
+        isAuthenticated: state => state.auth.isAuthenticated,
+        routes: state => state.auth.routes
     },
     actions: {
         toggleSideBar() {
@@ -44,10 +38,18 @@ export const useAppStore = defineStore("app", {
         toggleDevice(device) {
             this.device = device;
         },
-        setConfig({ config }) {
-            this.config = config;
-            if (Object.keys(config).length) {
-                this.configQueried = true;
+        getConfig() {
+            return this.config;
+        },
+        async loadConfig() {
+            try {
+                const configUrl = "/easyblog/config.json";
+                this.config = await fetch(configUrl)
+                    .then(res => res.json());
+                return true;
+            }
+            catch (err) {
+                console.log(err);
             }
         }
     }
