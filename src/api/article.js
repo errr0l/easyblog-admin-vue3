@@ -71,29 +71,26 @@ export function audit(auditDto) {
 }
 
 // 提交审核
-export function submit(data) {
+export function submit(id) {
     return request({
-        url: `/account/article/submit`,
-        method: 'post',
-        data
+        url: `/article/${id}/submit`,
+        method: 'post'
     });
 }
 
 // 撤回
-export function cancel(data) {
+export function cancel(id) {
     return request({
-        url: `/account/article/cancel`,
+        url: `/article/${id}/cancel`,
         method: 'post',
-        data
     });
 }
 
 // 确认
-export function confirm(data) {
+export function confirm(id) {
     return request({
-        url: `/account/article/confirm`,
+        url: `/article/${id}/confirm`,
         method: 'post',
-        data
     });
 }
 

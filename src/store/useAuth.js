@@ -6,7 +6,7 @@ import { useAppStore } from "@/store/app";
 import { getPermissions } from "@/api/permission";
 import { PERMISSION_MENU } from "@/constants/general";
 import router, { asyncRoutes, constantRoutes, NOT_FOUND, resetRouter } from "@/router";
-import { getPrefixForStorage, makeUserRoutes } from "@/utils/common";
+import { getPrefixForStorage, isPrimitive, makeUserRoutes } from "@/utils/common";
 
 const AUTH_TOKENS = "auth_tokens";
 
@@ -16,6 +16,10 @@ const defaultAuthTokens = {
     baseInfo: null,
     authorities: null
 };
+
+function setItem(key, value) {
+    localStorage.setItem(key, isPrimitive(value) ? value : JSON.stringify(value));
+}
 
 export const useAuth = defineStore('auth', () => {
     const authTokens = reactive({
@@ -39,6 +43,7 @@ export const useAuth = defineStore('auth', () => {
             }
         }
         catch (err) {
+            console.log(err);
             error.value = err;
         }
         finally {
@@ -93,9 +98,21 @@ export const useAuth = defineStore('auth', () => {
     function setAuthTokens(respData, saveToLocal = true) {
         if (saveToLocal) {
             const key = getKey(AUTH_TOKENS);
-            localStorage.setItem(key, JSON.stringify(respData));
+            setItem(key, respData);
         }
         Object.assign(authTokens, respData);
+    }
+    // 更新凭证，如头像等；
+    // 注，只能整个对象进行更新，比如，baseInfo，那么，value也应该是一个baseInfo
+    function updateAuthToken(key, value) {
+        if (key in authTokens) {
+            const authToken = authTokens[key];
+            // 简单校验
+            if (Object.keys(authToken).join() === Object.keys(value).join()) {
+                authTokens[key] = value;
+                setItem(getKey(AUTH_TOKENS), authTokens);
+            }
+        }
     }
 
     function getRefreshToken() {
@@ -165,7 +182,7 @@ export const useAuth = defineStore('auth', () => {
 
     return {
         loading, authenticate, logout, isAuthenticated, checkAuth,
-        refresh, clearAccessToken, clearRefreshToken, getRefreshToken, getAccessToken,
+        refresh, clearAccessToken, clearRefreshToken, getRefreshToken, getAccessToken, updateAuthToken,
         init,
         userRoutes,
         routes,

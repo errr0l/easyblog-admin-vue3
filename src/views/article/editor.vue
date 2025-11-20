@@ -12,7 +12,7 @@
                         <el-button size="small" @click="back">返回</el-button>
                         <template v-if="type === USER">
                             <el-button type="primary" size="small" @click="settingsDialogVisible = true">保存</el-button>
-                            <el-button type="primary" plain size="small" @click="saveDraft">草稿</el-button>
+                            <el-button type="primary" plain size="small" @click="saveOrUpdateDraft">草稿</el-button>
                         </template>
                         <template v-else-if="type === ADMIN">
                             <el-button type="primary" size="small" @click="auditingDialogVisible = true">审核</el-button>
@@ -211,8 +211,8 @@ async function create() {
     }
 }
 
-async function saveDraft() {
-    const resp = await (formData.id ? articleApi.update(formData) : articleApi.createDraft(formData));
+async function saveOrUpdateDraft() {
+    const resp = await (formData.id ? articleApi.updateDraft(formData) : articleApi.createDraft(formData));
     if (resp.code === 0) {
         ElMessage.success('操作成功');
         skipComparison.value = true;

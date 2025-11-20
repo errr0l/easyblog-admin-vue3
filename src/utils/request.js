@@ -21,8 +21,6 @@ if (!config.enableRetrying) {
     axiosRequestConfigMessages.push("；未启用重试机制.");
 }
 
-// const { refresh, getRefreshToken, getAccessToken, clearAccessToken, clearRefreshToken } = useAuth();
-// const { getConfig } = useConfig();
 let appStore;
 
 function getAppStore() {
@@ -112,7 +110,7 @@ const notice = (type, resp) => {
 };
 
 export const loggerInterceptor = (config) => {
-    logger(['config -', 'url：', config.url, '；method：', config.method, '；header：', config.headers, '；query：', config.query, "；params：", config.params]);
+    logger(['config -', 'url：', config.url, '；method：', config.method, '；header：', config.headers, '；query：', config.params, "；body：", config.data]);
     return config;
 };
 

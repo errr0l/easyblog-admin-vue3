@@ -53,8 +53,9 @@
     </div>
 </template>
 <script setup>
-import { useDownloadWebsiteZip, useWebSettings, useSaveWebSettings } from "@/composables/app";
+import { useDownloadWebsiteZip, useSaveWebSettings } from "@/composables/app";
 import { onMounted, reactive, ref } from "vue";
+import request from "@/utils/request";
 
 const defaultFormData = {
     commentable: 0,
@@ -74,7 +75,6 @@ const defaultFormData = {
 
 const formData = reactive(JSON.parse(JSON.stringify(defaultFormData)));
 const formRef = ref(null);
-const { queryWebSettings } = useWebSettings({ formData });
 
 async function formDataValidator() {
     const valid = await new Promise(resolve => {
@@ -97,4 +97,14 @@ const { downloadWebsiteZip, btnDisabled } = useDownloadWebsiteZip();
 onMounted(() => {
     queryWebSettings();
 });
+
+async function queryWebSettings() {
+    const resp = await request({
+        url: "/app/webSetting",
+        method: "get"
+    });
+    if (resp?.code === 0) {
+        Object.assign(formData, resp.data);
+    }
+}
 </script>

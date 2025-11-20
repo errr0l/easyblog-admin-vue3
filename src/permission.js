@@ -1,11 +1,9 @@
-import router from './router';
 import NProgress from 'nprogress';
-import getPageTitle from '@/utils/get-page-title';
-
 import 'nprogress/nprogress.css';
-import { useAppStore } from "@/store/app";
-import { ElMessage } from "element-plus";
 
+import getPageTitle from '@/utils/get-page-title';
+import { useAppStore } from "@/store/app";
+import router from './router';
 const whiteList = ['/login', '/404', '/error'];
 
 // NProgress Configuration

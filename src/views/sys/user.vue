@@ -43,15 +43,6 @@
                     </template>
                 </el-table-column>
             </el-table>
-
-            <div style="margin-top: 10px;">
-                <el-pagination
-                    background
-                    :page-size="query.size"
-                    layout="prev, pager, next"
-                    :total="total" style="float: right;">
-                </el-pagination>
-            </div>
         </el-card>
 
         <el-dialog v-model="dialogVisible" title="新增/编辑用户" width="40%" class="x-el-dialog styl-1" size="small">
@@ -78,7 +69,7 @@
                 </el-form-item>
             </el-form>
             <div style="text-align: right;">
-                <el-button size="small" @click="hideDialog">取消</el-button>
+                <el-button size="small" @click="dialogVisible = false">取消</el-button>
                 <el-button size="small" type="primary" v-if="isEditing" @click="update">确定</el-button>
                 <el-button size="small" type="primary" v-else @click="save">确定</el-button>
             </div>
@@ -93,7 +84,7 @@
                 </el-form-item>
             </el-form>
             <div style="text-align: right;">
-                <el-button size="small" @click="hide">取消</el-button>
+                <el-button size="small" @click="passwordDialogVisible = false">取消</el-button>
                 <el-button size="small" type="primary" @click="updatePassword">确定</el-button>
             </div>
         </el-dialog>
@@ -101,10 +92,19 @@
 </template>
 
 <script setup>
-import { usePagination, useUpdate, useDel, useSave, useDialog, useUpdateState, usePasswordDialog, useUpdatePassword } from "@/composables/user";
-import { useList, useUserRoleList } from "@/composables/role";
-import { onMounted, reactive, inject, ref, watch } from "vue";
+import { computed, inject, onMounted, reactive, ref, watch } from "vue";
 import { copyProperties, getDifference } from "@/utils/common";
+import {
+    del as delApi,
+    save as saveApi,
+    update as updateApi,
+    updatePassword as updatePasswordApi,
+    updateState as updateStateApi
+} from "@/api/user";
+import { getRolesByUserId as getRolesByUserIdApi } from "@/api/role";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { useUser } from "@/composables/useUser";
+import { useRole } from "@/composables/useRole";
 
 const query = reactive({
     size: 10,
@@ -126,46 +126,21 @@ const defaultPasswordFormData = {
 };
 const passwordFormData = reactive({ ...defaultPasswordFormData });
 const roleIds = ref([]);
-// 设置分配和移除的角色id
-function setAssigningAndRemoving() {
-    // dialogVisible.value = false;
-    hideDialog();
-    // 分别取<选中id&已分配id的差集>和<已分配id&选中id的差集>，分别表示分配项和移除项
-    formData.assigning = getDifference(roleIds.value, userRoleIds.value);
-    formData.removing = getDifference(userRoleIds.value, roleIds.value);
-}
+const dialogVisible = ref(false);
+const isEditing = computed(() => !!formData.id);
 const formData = reactive({ ...defaultFormData });
+const userRoleList = ref([]);
+const passwordDialogVisible = ref(false);
 
-const { list, queryPagination, total } = usePagination({ query });
-const { update } = useUpdate({
-    formData,
-    refresh: queryPagination,
-    preHandlers: [setAssigningAndRemoving]
-});
-const { del } = useDel({ refresh: queryPagination });
+const { list, getAllUsers } = useUser();
 
-function setFormData(row) {
-    Object.assign(formData, copyProperties(row, { ...defaultFormData }))
-    queryUserRoleList(formData.id);
-}
-function resetFormData() {
-    Object.assign(formData, { ...defaultFormData });
-    userRoleList.value.length = 0;
-}
-
-const { dialogVisible, showDialogForAdding, showDialogForEditing, isEditing, hide: hideDialog } = useDialog({
-    formData, setFormData, resetFormData
-});
-
-const { save } = useSave({ formData, refresh: queryPagination, postHandlers: [hideDialog] });
-const { showDialogForUpdatingPassword, passwordDialogVisible, hide, show } = usePasswordDialog({ formData: passwordFormData, defaultFormData: defaultPasswordFormData });
-const { ban, activate } = useUpdateState({ refresh: queryPagination });
 const getDefaultImage = inject('getDefaultImage');
-const { queryList, list: roleList } = useList();
-const { queryUserRoleList, userRoleList, userRoleIds } = useUserRoleList();
+
+const { getAllRoles, roles: roleList } = useRole();
+
 const passwordFormRef = ref(null);
 async function passwordFormDataValidator() {
-    const valid = await new Promise(resolve => {
+    return await new Promise(resolve => {
         passwordFormRef.value?.validate((valid) => {
             resolve(valid);
             if (!valid) {
@@ -173,27 +148,130 @@ async function passwordFormDataValidator() {
             }
         });
     });
-    if (!valid) {
-        throw new Error('表单校验未通过');
-    }
 }
-// 指示处理器以异步的方式运行
-passwordFormDataValidator._async = true;
-const { updatePassword, rules } = useUpdatePassword({
-    formData: passwordFormData,
-    preHandlers: [passwordFormDataValidator],
-    postHandlers: [hide]
-});
 
 watch(userRoleList, (_new) => {
     roleIds.value = _new.map(item => item.id);
 });
 
 onMounted(() => {
-    queryPagination();
-    queryList();
+    getAllUsers();
+    getAllRoles();
 });
 window.addEventListener('error', (err) => {
     console.log(err);
 });
+
+function showDialogForUpdatingPassword(row) {
+    passwordDialogVisible.value = true;
+    Object.assign(passwordFormData, { ...defaultPasswordFormData });
+    passwordFormData.id = row.id;
+}
+
+function showDialogForAdding() {
+    dialogVisible.value = true;
+    Object.assign(formData, { ...defaultFormData });
+    userRoleList.value.length = 0;
+}
+
+function showDialogForEditing(row) {
+    dialogVisible.value = true;
+    Object.assign(formData, copyProperties(row, { ...defaultFormData }))
+    getRolesByUserId(formData.id);
+}
+
+async function save() {
+    const resp = await saveApi(formData);
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+        getAllUsers();
+    }
+}
+
+const activated = 1;
+const banned = 2;
+async function updateState(formData) {
+    const resp = await updateStateApi(formData);
+    if (resp?.code === 0) {
+        getAllUsers();
+        ElMessage.success("操作成功");
+    }
+}
+
+function activate(row) {
+    updateState({ id: row.id, state: activated });
+}
+
+function ban(row) {
+    updateState({ id: row.id, state: banned });
+}
+
+async function getRolesByUserId(id) {
+    const resp = await getRolesByUserIdApi(id);
+    if (resp?.code !== 0) {
+        return;
+    }
+    userRoleList.value = resp.data;
+}
+
+const userRoleIds = computed(() => userRoleList.value.map(item => item.id));
+
+const rules = {
+    password: [
+        { required: true, message: '密码不能为空', trigger: '' },
+    ],
+    confirmation: [
+        { required: true, message: '确认密码不能为空', trigger: '' },
+        {
+            validator: (rule, value, callback) => {
+                if (value !== passwordFormData.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                }
+                else {
+                    callback();
+                }
+            },
+            trigger: 'blur'
+        }
+    ],
+};
+
+async function updatePassword() {
+    if (!await passwordFormDataValidator()) {
+        return;
+    }
+    passwordDialogVisible.value = false;
+    const resp = await updatePasswordApi(passwordFormData);
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+    }
+}
+
+async function update() {
+    dialogVisible.value = false;
+    // 设置分配和移除的角色id
+    // 分别取<选中id&已分配id的差集>和<已分配id&选中id的差集>，分别表示分配项和移除项
+    formData.assigning = getDifference(roleIds.value, userRoleIds.value);
+    formData.removing = getDifference(userRoleIds.value, roleIds.value);
+    const resp = await updateApi(formData);
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+        getAllUsers();
+    }
+}
+
+function del(row) {
+    ElMessageBox.confirm("确认删除吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+    }).then(async () => {
+        const resp = await delApi({ id: row.id });
+        if (resp?.code !== 0) {
+            ElMessage.error("操作失败");
+            return;
+        }
+        ElMessage.success("操作成功");
+        getAllUsers();
+    });
+}
 </script>

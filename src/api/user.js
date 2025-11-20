@@ -1,19 +1,19 @@
 import request from '@/utils/request';
 
 // 获取用户列表
-export function getPagination() {
+export function getAllUsers() {
     return request({
-        url: '/user/pagination',
+        url: '/user/all',
         method: 'get'
     });
 }
 
-export function getList() {
-    return request({
-        url: '/user/list',
-        method: 'get'
-    });
-}
+// export function getList() {
+//     return request({
+//         url: '/user/list',
+//         method: 'get'
+//     });
+// }
 
 // 新增用户
 export function save(data) {

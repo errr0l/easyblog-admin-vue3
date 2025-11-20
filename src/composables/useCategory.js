@@ -14,7 +14,7 @@ export function useCategory() {
             });
             if (resp?.code === 0) {
                 ElMessage.success("操作成功");
-                refresh();
+                listAll();
             }
         });
     }
@@ -33,7 +33,7 @@ export function useCategory() {
         if (resp?.code === 0) {
             dialogVisible.value = false;
             ElMessage.success("操作成功");
-            refresh();
+            listAll();
         }
     }
 
@@ -44,7 +44,7 @@ export function useCategory() {
         if (resp?.code === 0) {
             dialogVisible.value = false;
             ElMessage.success("操作成功");
-            refresh();
+            listAll();
         }
     }
 

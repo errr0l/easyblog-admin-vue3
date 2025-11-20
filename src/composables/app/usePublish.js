@@ -1,4 +1,4 @@
-import { publish as _ } from "@/api/app";
+import { publish as publishApi } from "@/api/app";
 import { reactive } from "vue";
 import { useSetInterval } from "../useSetInterval";
 import { usePublishProgress } from "./usePublishProgress";
@@ -15,7 +15,7 @@ export function usePublish({ dialogVisible, progressDialogVisible }) {
     const { getPublishProgress, progress, resetProgress } = usePublishProgress(clear);
     async function publish() {
         dialogVisible.value = false;
-        const resp = await _(formData);
+        const resp = await publishApi(formData);
         if (resp?.code === 0) {
             progressDialogVisible.value = true;
             start(getPublishProgress);

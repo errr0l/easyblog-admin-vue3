@@ -17,9 +17,9 @@ export function listAll() {
 }
 
 // 获取用户角色列表
-export function getRoleListByUserId(userId) {
+export function getRolesByUserId(userId) {
     return request({
-        url: `/user/${userId}/roleList`,
+        url: `/user/${userId}/roles`,
         method: 'get'
     });
 }

@@ -135,7 +135,7 @@ onActivated(() => {
 
 // 提交审核
 async function submit(row) {
-    const resp = await articleApi.submit({ id: row.id });
+    const resp = await articleApi.submit(row.id);
     if (resp?.code === 0) {
         ElMessage.success("操作成功");
         row.state = WAITING_FOR_AUDITING;
@@ -143,7 +143,7 @@ async function submit(row) {
 }
 
 async function confirm(row) {
-    const resp = await articleApi.confirm({ id: row.id });
+    const resp = await articleApi.confirm(row.id);
     if (resp?.code === 0) {
         ElMessage.success("操作成功");
         row.state = WAITING_FOR_PUBLICATION;
@@ -155,7 +155,7 @@ function del(row) {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
     }).then(async () => {
-        const resp = await articleApi.del({ id: row.id });
+        const resp = await articleApi.del(row.id);
         if (resp?.code === 0) {
             ElMessage.success("操作成功");
             row.state = DELETED;
@@ -168,7 +168,7 @@ function cancel(row) {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
     }).then(async () => {
-        const resp = await articleApi.cancel({ id: row.id });
+        const resp = await articleApi.cancel(row.id);
         if (resp?.code === 0) {
             ElMessage.success("操作成功");
             row.state = PENDING;

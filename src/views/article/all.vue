@@ -140,7 +140,7 @@
 
 <script setup>
 import { WAITING_FOR_AUDITING, CREATION_TYPE_CONFIG, ARTICLE_STATE_CONFIG, articleStates, creationTypes } from "@/views/article/constants";
-import { inject, onMounted, ref } from "vue";
+import { inject, onActivated, onMounted, ref } from "vue";
 
 import { useStatistic } from "@/composables/article/useStatistic";
 import { usePublish } from "@/composables/app/usePublish";
@@ -165,14 +165,17 @@ function setQuery() {
 }
 setQuery();
 onMounted(() => {
-    listAll();
     fetchData();
     getStatistic();
+});
+
+onActivated(() => {
+    listAll();
 });
 
 function closeDialog() {
     progressDialogVisible.value = false;
     resetProgress();
-    refresh();
+    listAll();
 }
 </script>
