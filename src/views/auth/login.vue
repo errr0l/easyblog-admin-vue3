@@ -64,7 +64,8 @@ const credentials = reactive({
     username: "",
     password: "",
     captcha: "",
-    uuid: ""
+    uuid: "",
+    token: ""
 });
 // 不要解构store：https://pinia.vuejs.org/core-concepts/#composition-api-store；
 // 或者使用storeToRefs包裹；
@@ -86,6 +87,8 @@ const handleLogin = async () => {
     if (!credentials.captcha) {
         return ElMessage.error("验证码不能空");
     }
+    // 销毁刷新令牌
+    credentials.token = authStore.getRefreshToken();
     await authStore.authenticate(credentials);
     if (!authStore.error) {
         ElMessage.success("登陆成功");

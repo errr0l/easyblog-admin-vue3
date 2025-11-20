@@ -76,6 +76,7 @@ function popup(message, $route) {
  * @param {boolean} ok - 是否重新发起请求的标识
  */
 function release(ok) {
+    retrying = false;
     if (queue.length) {
         logger(`释放请求队列： ${queue.length}；flag: ${ok}`);
         let handler;
@@ -156,7 +157,7 @@ async function respHandler(resp) {
         case 40101:
             const { getRefreshToken, refresh } = useAuth();
             const refreshToken = getRefreshToken();
-            // 如果没有刷新token，就提示
+            // 如果没有刷新token时，前往登录
             if (!refreshToken) {
                 logger("刷新令牌不存在，需重新登录.");
                 notice(1, resp);
@@ -178,7 +179,6 @@ async function respHandler(resp) {
                 else {
                     logger("刷新失败", 'error');
                 }
-                retrying = false;
             }
             else {
                 logger("等待刷新令牌：" + resp.config.url);

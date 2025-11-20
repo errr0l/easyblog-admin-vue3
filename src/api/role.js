@@ -1,13 +1,5 @@
 import request from '@/utils/request';
 
-// 获取角色分页
-// export function getPagination() {
-//     return request({
-//         url: '/role/pagination',
-//         method: 'get'
-//     });
-// }
-
 // 获取角色列表
 export function listAll() {
     return request({

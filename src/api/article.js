@@ -39,14 +39,6 @@ export function list(query) {
     });
 }
 
-// export function getMyPagination(query) {
-//     return request({
-//         url: '/article/pagination',
-//         method: 'get',
-//         params: query
-//     });
-// }
-
 // 获取文章详情
 export function getDetail(id) {
     return request({

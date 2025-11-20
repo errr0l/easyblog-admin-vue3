@@ -1,28 +1,5 @@
 import request from '@/utils/request';
 
-// export function login(data) {
-//     return request({
-//         url: '/account/login',
-//         method: 'post',
-//         data
-//     });
-// }
-
-// export async function refresh(data) {
-//     return request({
-//         url: '/account/refresh',
-//         method: 'post',
-//         data
-//     });
-// }
-
-// export function logout() {
-//     return request({
-//         url: '/account/logout',
-//         method: 'post'
-//     });
-// }
-
 // 获取账户信息
 export function getAccountInfo() {
     return request({

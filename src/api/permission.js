@@ -1,13 +1,5 @@
 import request from '@/utils/request';
 
-// 获取（已登录）用户的权限【「permission」就当作一个模块名吧】
-// export function getMyPermissions() {
-//     return request({
-//         url: `/permission/all`,
-//         method: 'get'
-//     });
-// }
-
 // 获取角色权限
 export function getRolePermissions(roleId) {
     return request({

@@ -8,13 +8,6 @@ export function getAllUsers() {
     });
 }
 
-// export function getList() {
-//     return request({
-//         url: '/user/list',
-//         method: 'get'
-//     });
-// }
-
 // 新增用户
 export function save(data) {
     return request({
