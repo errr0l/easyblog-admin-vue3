@@ -1,5 +1,5 @@
 import { useRoute, useRouter } from "vue-router";
-import { ADMIN, USER } from "@/constants/general";
+import { ARTICLE_ALL } from "@/constants/general";
 import { ARTICLE_STATE_CONFIG, WAITING_FOR_AUDITING, WAITING_FOR_PUBLICATION } from "@/views/article/constants";
 import { ElMessageBox } from "element-plus";
 
@@ -9,7 +9,7 @@ export function useArticleNavigator() {
     const route = useRoute();
     // 添加
     function add() {
-        router.push(`/article/editor?type=${USER}`);
+        router.push(`/article/editor?from=my`);
     }
 
     // 返回
@@ -36,17 +36,18 @@ export function useArticleNavigator() {
             path: "/article/editor",
             query: {
                 id: row.id,
-                type: USER
+                from: "my"
             }
         });
     }
 
+    // 管理员的[编辑]，实际上是[审核]
     function audit(row) {
         router.push({
             path: "/article/editor",
             query: {
                 id: row.id,
-                type: ADMIN
+                from: ARTICLE_ALL
             }
         });
     }

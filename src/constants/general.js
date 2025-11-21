@@ -33,8 +33,11 @@ export const PERMISSION_MENU = 1;
 export const PERMISSION_OPERATION = 2;
 
 // 用户类型
-export const USER = "user"; // 普通用户
-export const ADMIN = "admin"; // 管理员
+// export const USER = "user"; // 普通用户
+// export const ADMIN = "admin"; // 管理员
+
+// 文章
+export const ARTICLE_ALL = "ALL"; // 全部文章
 
 // 审核意见
 // export const OPTION_APPROVAL = 1;

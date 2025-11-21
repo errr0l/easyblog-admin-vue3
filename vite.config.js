@@ -8,7 +8,7 @@ import configProvider from "./plugins/vite-plugin-config-provider";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-    const prod = mode === 'production';
+    // const prod = mode === 'production';
     return {
         // base: prod ? "/easyblog/admin" : '',
         base: "/easyblog/admin",

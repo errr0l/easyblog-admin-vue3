@@ -3,7 +3,10 @@ import { getCaptcha as getCaptchaApi } from "@/api/account";
 
 export function useCaptcha() {
 
-    const captcha = reactive({});
+    const captcha = reactive({
+        uuid: "",
+        image: ""
+    });
     const loading = ref(false);
     async function getCaptcha() {
         try {

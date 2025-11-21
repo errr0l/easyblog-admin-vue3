@@ -132,7 +132,7 @@ const formData = reactive({ ...defaultFormData });
 const userRoleList = ref([]);
 const passwordDialogVisible = ref(false);
 
-const { list, getAllUsers } = useUser();
+const { list, getAllUsers, del } = useUser();
 
 const getDefaultImage = inject('getDefaultImage');
 
@@ -258,20 +258,5 @@ async function update() {
         ElMessage.success("操作成功");
         getAllUsers();
     }
-}
-
-function del(row) {
-    ElMessageBox.confirm("确认删除吗？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-    }).then(async () => {
-        const resp = await delApi({ id: row.id });
-        if (resp?.code !== 0) {
-            ElMessage.error("操作失败");
-            return;
-        }
-        ElMessage.success("操作成功");
-        getAllUsers();
-    });
 }
 </script>

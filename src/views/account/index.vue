@@ -88,11 +88,11 @@ async function queryAccountInfo() {
     }
 }
 
-const { hasChanged } = useReminder({
-    keysChecked: Object.keys(defaultAccountFormData),
-    o1: accountFormData,
-    o2: originalAccountFormData
-});
+const { hasChanged } = useReminder(
+    accountFormData,
+    originalAccountFormData,
+    Object.keys(defaultAccountFormData)
+);
 async function updateAccountInfo() {
     if (!accountFormData.username || !accountFormData.introduction || !accountFormData.email) {
         ElMessage.warning("username、email、introduction不能为空");

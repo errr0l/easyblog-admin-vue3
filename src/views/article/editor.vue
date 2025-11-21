@@ -10,17 +10,17 @@
                     </div>
                     <div class="acts">
                         <el-button size="small" @click="back">返回</el-button>
-                        <template v-if="type === USER">
+                        <template v-if="_from === ARTICLE_ALL">
+                            <el-button type="primary" size="small" @click="auditingDialogVisible = true">审核</el-button>
+                        </template>
+                        <template v-else>
                             <el-button type="primary" size="small" @click="settingsDialogVisible = true">保存</el-button>
                             <el-button type="primary" plain size="small" @click="saveOrUpdateDraft">草稿</el-button>
-                        </template>
-                        <template v-else-if="type === ADMIN">
-                            <el-button type="primary" size="small" @click="auditingDialogVisible = true">审核</el-button>
                         </template>
                     </div>
                 </div>
             </template>
-            <MdEditor v-if="isUser" v-model="formData.content" style="flex: 1;" @onUploadImg="onUploadImg" />
+            <MdEditor v-if="!isFromAll" v-model="formData.content" style="flex: 1;" @onUploadImg="onUploadImg" />
             <MdPreview v-else id="preview-only" :modelValue="formData.content" style="flex: 1; overflow: auto;" />
         </el-card>
         <el-dialog v-model="settingsDialogVisible" title="文章设置" width="40%" class="x-el-dialog styl-1">
@@ -84,7 +84,7 @@
             </el-form>
             <div style="text-align: right;">
                 <el-button @click="settingsDialogVisible = false" size="small">取消</el-button>
-                <el-button type="primary" size="small" @click="saveOrUpdate" v-if="type === USER">确定</el-button>
+                <el-button type="primary" size="small" @click="saveOrUpdate" v-if="!isFromAll">确定</el-button>
             </div>
         </el-dialog>
         <el-dialog v-model="auditingDialogVisible" title="审核" width="40%" class="x-el-dialog styl-1">
@@ -115,7 +115,7 @@ import "md-editor-v3/lib/style.css";
 import "md-editor-v3/lib/preview.css";
 
 import { OPINION_CONFIG, CREATION_TYPE_CONFIG, REPRINT, ORIGINAL } from "./constants";
-import { USER, ADMIN } from "@/constants/general";
+import { ARTICLE_ALL } from "@/constants/general";
 import { useTag } from "./composables/useTag";
 import { useElUpload } from "@/composables/useElUpload";
 import { addIdentityForImagePath } from "@/utils/common";
@@ -154,8 +154,8 @@ const isReprint = computed(() => formData.creationType === REPRINT);
 
 const route = useRoute();
 
-const { id, type = USER } = route.query;
-const isUser = type === USER;
+const { id, from: _from } = route.query;
+const isFromAll = _from === ARTICLE_ALL;
 
 const { back } = useArticleNavigator();
 const { audit, formData: auditFormData } = useAuditArticle({ dialogVisible: auditingDialogVisible });

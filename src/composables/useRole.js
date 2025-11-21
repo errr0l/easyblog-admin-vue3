@@ -14,6 +14,8 @@ export function useRole() {
     }
 
     const rolePermissions = ref([]);
+
+    // 获取角色权限
     async function getRolePermissions(roleId) {
         const resp = await getRolePermissionsApi(roleId);
         if (resp?.code !== 0) {

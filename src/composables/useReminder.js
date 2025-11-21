@@ -4,7 +4,7 @@ import { ElMessageBox } from "element-plus";
 import { isPrimitive } from "@/utils/common";
 
 // 表单提示处理模块；
-export function useReminder({ keysChecked = [], o1, o2 }) {
+export function useReminder(o1, o2, keysChecked = []) {
     const skipComparison = ref(false);
     const message = "内容尚未保存，改动部分将会被丢弃，是否继续？";
     /**
@@ -23,7 +23,7 @@ export function useReminder({ keysChecked = [], o1, o2 }) {
         if (skipComparison.value) {
             return equal;
         }
-        for (let key of keysChecked) {
+        for (let key of keysChecked.length ? keysChecked : Object.keys(o1)) {
             const val = o1[key];
             if (isPrimitive(val)) {
                 if (val !== (o2[key] || "")) {

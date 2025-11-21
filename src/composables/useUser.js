@@ -11,19 +11,20 @@ export function useUser() {
         }
     }
 
-    function del(data) {
+    function del(row) {
         ElMessageBox.confirm("确认删除吗？", "提示", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
         }).then(async () => {
-            const resp = await delApi({ id: data.id });
+            const resp = await delApi({ id: row.id });
             if (resp?.code !== 0) {
                 ElMessage.error("操作失败");
                 return;
             }
             ElMessage.success("操作成功");
+            getAllUsers();
         });
     }
 
-    return { getAllUsers, list };
+    return { getAllUsers, list, del };
 }

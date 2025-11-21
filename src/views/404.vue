@@ -9,25 +9,36 @@
             </div>
             <div class="bullshit">
                 <div class="bullshit__oops">OOPS!</div>
-                <div class="bullshit__info">All rights reserved
-                    <a style="color:#20a0ff" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>
-                </div>
                 <div class="bullshit__headline">{{ message }}</div>
-                <div class="bullshit__info">Please check that the URL you entered is correct, or click the button below to return to the homepage.</div>
-                <a href="" class="bullshit__return-home">Back to home</a>
+<!--                <div class="bullshit__info">Please check that the URL you entered is correct, or click the button below to return to the homepage.</div>-->
+                <div style="margin-bottom: 10px;">
+                    <a href="javascript:void(0);" class="bullshit__return-home" @click="handleBack2LastPage" style="float: none">返回上一页</a>
+                </div>
+                <a href="/" class="bullshit__return-home">返回首页</a>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import router from "@/router";
 export default {
     name: "Page404",
     computed: {
         message() {
-            return "The webmaster said that you can not enter this page...";
+            return "果咩，找不到页面！！打开的姿势是否正确？";
         },
     },
+    methods: {
+        handleBack2LastPage(event) {
+            event.preventDefault();
+            const route = router.currentRoute.value;
+            let redirectTo = route.query.redirectTo;
+            if (redirectTo) {
+                router.replace(redirectTo);
+            }
+        }
+    }
 };
 </script>
 

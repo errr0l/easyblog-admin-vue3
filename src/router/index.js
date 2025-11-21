@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import Layout from '@/layout/index';
-import { ADMIN } from "@/constants/general";
+import { ARTICLE_ALL } from "@/constants/general";
 
 export const constantRoutes = [
     {
@@ -25,16 +25,6 @@ export const constantRoutes = [
             meta: { title: 'Dashboard', icon: 'Compass' }
         }]
     },
-    // {
-    //     path: "/oauth2/callback",
-    //     component: () => import("@/views/auth/oauth2/callback"),
-    //     hidden: true
-    // },
-    // {
-    //     path: "/register",
-    //     component: () => import("@/views/auth/register"),
-    //     hidden: true
-    // },
     {
         path: '/account',
         component: Layout,
@@ -116,15 +106,15 @@ export const asyncRoutes = [
                 hidden: true,
                 beforeEnter: (to, from, next) => {
                     // 在进入路由前执行的逻辑
-                    // 注意：这里没有 this，因为守卫执行时组件实例还没创建
+                    // 注意：这里没有this，因为守卫执行时组件实例还没创建
                     // 根据路由规则或者状态决定是否进入路由
                     // 在编辑页面刷新时，from为/article，因此只能根据query中的参数进行判断；
                     // 但这样也会存在问题，如果用户（管理员）把query删除，并刷新页面的话，将会导致高亮错误的页面（不过应该没人这么闲吧）；
-                    // 而且也还有一个默认普通用户设置的兜底，所以这种情况应该没那么糟糕
+                    // 而且也还有一个默认普通用户设置的兜底，所以这种情况应该没那么糟糕；
                     if (from.meta.settingActiveMenu) {
                         to.meta.activeMenu = from.path;
                     }
-                    else if (to.query.type === ADMIN) {
+                    else if (to.query.from === ARTICLE_ALL) {
                         to.meta.activeMenu = "/article/all";
                     }
                     // 必须调用该方法来resolve这个钩子
