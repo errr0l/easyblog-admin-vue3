@@ -58,6 +58,7 @@
                 </el-form-item>
                 <el-form-item label="摘要">
                     <el-input v-model="formData.summary" placeholder="请输入（上限为200字符）" :rows="3" type="textarea" :maxlength="200" resize="none" />
+                    <el-button style="margin-top: 10px;" @click="handleCreateSummary" size="small" :disabled="!!formData.summary">生成摘要</el-button>
                 </el-form-item>
                 <el-form-item label="排序">
                     <el-input v-model="formData.sort" style="width: 172px;" placeholder="请输入" />
@@ -125,20 +126,9 @@ import { useAuditArticle } from "@/composables/article/useAuditArticle";
 import * as articleApi from "@/api/article";
 import { useArticleNavigator } from "@/views/article/composables/useArticleNavigator";
 import { useCategory } from "@/composables/useCategory";
+import { defaultFormData } from "./dto";
 
-const defaultFormData = {
-    id: "",
-    title: "",
-    content: "",
-    categoryId: "",
-    cover: "",
-    summary: "",
-    tag: "",
-    creationType: ORIGINAL,
-    reprintUrl: "",
-    commentable: 0,
-    sort: ""
-};
+import { useArticleHelper } from "../../composables/article/useArticleHelper";
 
 const opinionsSorted = Object.values(OPINION_CONFIG).sort((a, b) => b.value - a.value);
 
@@ -175,7 +165,7 @@ const onUploadImg = createOnUploadImg({
     pathHandler: addIdentityForImagePath,
     type: 2
 });
-
+const { createSummary } = useArticleHelper();
 // 同步cover
 watch(cover, () => {
     formData.cover = cover.value;
@@ -227,6 +217,10 @@ async function update() {
         skipComparison.value = true;
         back();
     }
+}
+
+function handleCreateSummary() {
+    formData.summary = createSummary(formData.content);
 }
 </script>
 

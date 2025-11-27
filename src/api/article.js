@@ -102,3 +102,11 @@ export function updateDraft(data) {
         data
     });
 }
+
+export function importArticles(data) {
+    return request({
+        url: `/article/import`,
+        method: 'post',
+        data
+    });
+}

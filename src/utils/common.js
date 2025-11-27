@@ -259,3 +259,81 @@ export function generateTree(permissionList) {
     }
     return tree;
 }
+
+export function readFileContent(file, type = 'text') {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const result = e.target.result;
+            resolve(result);
+        };
+        
+        reader.onerror = function() {
+            reject(new Error(`无法读取文件: ${file.name}`));
+        };
+        
+        switch (type) {
+            case 'text':
+                reader.readAsText(file);
+                break;
+            case 'dataURL':
+                reader.readAsDataURL(file);
+                break;
+            case 'binary':
+                reader.readAsBinaryString(file);
+                break;
+            case 'arrayBuffer':
+                reader.readAsArrayBuffer(file);
+                break;
+        }
+    });
+}
+
+// 去除markdown标签
+export function removeMarkdownTags(content) {
+    if (!content) return '';
+    let result = content;
+    // 专门处理图片标记
+    const imagePatterns = [
+        /!\[[^\]]*\]\([^)]*\)/g,  // ![alt](url)
+        /!\[[^\]]*\]/g,           // ![alt]（没有URL）
+        /!\[\]\([^)]*\)/g,        // ![](url)（没有alt文本）
+        /!\[\]/g,                 // ![]（空的）
+    ];
+    imagePatterns.forEach(pattern => {
+        result = result.replace(pattern, '');
+    });
+    // 其他处理保持不变
+    return result
+        .replace(/^#+\s+/gm, '')
+        .replace(/(\*\*|__)(.*?)\1/g, '$2')
+        .replace(/(\*|_)(.*?)\1/g, '$2')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/^\s*>\s+/gm, '')
+        .replace(/^\s*[-*+]\s+/gm, '')
+        .replace(/^\s*\d+\.\s+/gm, '')
+        .replace(/```[\s\S]*?\n([\s\S]*?)```/g, '$1')
+        .replace(/~~~[\s\S]*?\n([\s\S]*?)~~~/g, '$1')
+        .replace(/^\s*[*\-_]{3,}\s*$/gm, '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+// 如果内容不是以#开头时，跳过
+export function extractMarkdownTitle(content) {
+    if (!content) return null;
+    
+    const lines = content.trim().split('\n');
+    const title = lines[0].trim();
+    
+    // 只检查第一行是否以 # 开头
+    const titleRegex = /^#{1,3}\s+(.+)$/;
+    const match = title.match(titleRegex);
+    return match ? {
+        raw: match[0],
+        pure: match[1]
+    } : null;
+}

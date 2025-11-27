@@ -36,9 +36,10 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item>
+                    <el-form-item style="margin-right: 0;">
                         <el-button size="small" @click="search">查询</el-button>
                         <el-button type="primary" size="small" @click="add">新增</el-button>
+                        <el-button type="primary" size="small" @click="importDialogVisible = true">导入</el-button>
                     </el-form-item>
                 </el-form>
             </template>
@@ -60,7 +61,7 @@
                 </el-table-column>
                 <el-table-column align="center" label="状态" prop="state" width="120">
                     <template #="{ row }">
-                        <span v-if="!row.state">-</span>
+                        <span v-if="row.state < 0">-</span>
                         <el-tag v-else size="small" :effect="ARTICLE_STATE_CONFIG[row.state].effect" :type="ARTICLE_STATE_CONFIG[row.state].type">{{ ARTICLE_STATE_CONFIG[row.state].text }}</el-tag>
                     </template>
                 </el-table-column>
@@ -101,11 +102,32 @@
                 </el-pagination>
             </div>
         </el-card>
+
+        <el-dialog v-model="importDialogVisible" title="导入文章" width="40%" class="x-el-dialog styl-2">
+            <el-upload
+                v-model:file-list="uploadFiles"
+                multiple
+                :on-change="handleUploadChange"
+                accept=".md"
+                :on-remove="handleRemove"
+                :auto-upload="false">
+                <el-button type="primary" size="small">选择文件</el-button>
+                <template #tip>
+                    <div class="el-upload__tip">
+                        仅限markdown文件；选择完成后，点击[确定]按钮，以将数据上传至服务器
+                    </div>
+                </template>
+            </el-upload>
+            <div style="text-align: right;">
+                <el-button @click="importDialogVisible = false" size="small">取消</el-button>
+                <el-button type="primary" size="small" @click="importArticles">确定</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { onActivated, inject } from "vue";
+import { onActivated, inject, ref } from "vue";
 import { useArticleNavigator } from "./composables/useArticleNavigator";
 import {
     creationTypes,
@@ -122,11 +144,17 @@ import { useCategory } from "@/composables/useCategory";
 import * as articleApi from "@/api/article";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useArticlePagination } from "@/composables/article/useArticlePagination";
+import { defaultFormData as defaultArticleExample } from "./dto";
+import { useArticleHelper } from "../../composables/article/useArticleHelper";
 
 const { list, total, fetchData, currentChange, search, query } = useArticlePagination();
 const { edit, add } = useArticleNavigator();
 const { listAll, list: categories } = useCategory();
+const { extractMarkdownTitle, createSummary, removeMarkdownTags, readFileContent } = useArticleHelper();
 const getDefaultImage = inject('getDefaultImage');
+const importDialogVisible = ref(false);
+const articles = [];
+const uploadFiles = ref([]);
 
 onActivated(() => {
     fetchData();
@@ -175,4 +203,66 @@ function cancel(row) {
         }
     });
 }
+
+function importArticles() {
+    const count = articles.length;
+    if (count === 0) {
+        return;
+    }
+    let titles = articles.slice(0, 3).map(item => item.title).join();
+    if (count > 3) {
+        titles += ',...等';
+    }
+    ElMessageBox.confirm(`确认导入[${titles}]文章`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+    }).then(async () => {
+        const resp = await articleApi.importArticles({
+            articles: articles
+        });
+        if (resp?.code === 0) {
+            ElMessage.success("操作成功");
+            articles.length = 0;
+            uploadFiles.value.length = 0;
+            importDialogVisible.value = false;
+            fetchData();
+        }
+    });
+}
+
+// 这个上传组件，只是当做一个文件读取器，并未真正上传数据，要调用importArticles方法来完成；
+// 导入文件时，仅处理文本内容，即不包括里面的图片链接(链接需要进一步处理，手动转移图片，或修改为网络链接等)，文件名为标题，其他为文件内容；
+// 导入的数据，为草稿状态；
+async function handleUploadChange(file, files) {
+    // 如果可能，在文件内容中提取标题，并修改
+    let content = await readFileContent(file.raw);
+    // 如果可能，在文件内容中提取标题
+    const title = extractMarkdownTitle(content);
+    if (title) {
+        // 若是以换行符开头，删除
+        content = content.slice(title.raw.length).trim().replace(/^[\n]+/, '');
+        // 修改显示
+        uploadFiles.value = files.map(item => {
+            if (item.uid === file.uid) {
+                return {
+                    ...item,
+                    name: `${file.name} (${title.pure})`
+                };
+            }
+            return item;
+        });
+    }
+    const articleExample = { ...defaultArticleExample };
+    articleExample.title = title.pure || file.name;
+    articleExample.summary = createSummary(content);
+    articleExample.content = content;
+    articleExample.uid = file.uid;
+    articles.push(articleExample);
+}
+
+// 移除文章数据
+const handleRemove = (file, files) => {
+    const index = articles.findIndex(item => item.uid == file.uid);
+    articles.splice(index, 1);
+};
 </script>

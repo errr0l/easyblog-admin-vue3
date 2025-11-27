@@ -51,7 +51,7 @@ export function toLogin(redirectPath) {
  * @param {string} message - 提示文本
  * @param {Object} $route - 路由实例
  */
-function popup(message, $route) {
+export function popup(message, $route) {
     if (popup.noticed) {
         return;
     }

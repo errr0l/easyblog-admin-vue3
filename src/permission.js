@@ -4,6 +4,7 @@ import 'nprogress/nprogress.css';
 import getPageTitle from '@/utils/get-page-title';
 import { useAppStore } from "@/store/app";
 import router from './router';
+import { popup } from './utils/request';
 const whiteList = ['/login', '/404', '/error'];
 
 // NProgress Configuration
@@ -36,7 +37,9 @@ router.beforeEach(async (to, from, next) => {
         if (appStore.isAuthenticated) {
             next({ ...to, replace: true });
         }
+        // 没认证时，提示登录
         else {
+            popup("请先登录", router.currentRoute.value);
             next();
         }
     }
