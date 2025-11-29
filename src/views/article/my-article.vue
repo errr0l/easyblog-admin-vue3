@@ -4,10 +4,10 @@
             <template #header>
                 <el-form :inline="true" :model="query" size="small">
                     <el-form-item label="标题">
-                        <el-input v-model="query.keyword" placeholder="请输入" clearable style="width: 172px"></el-input>
+                        <el-input v-model="query.keyword" placeholder="请输入" clearable style="width: 162px"></el-input>
                     </el-form-item>
                     <el-form-item label="分类">
-                        <el-select v-model="query.categoryId" placeholder="请选择" clearable style="width: 172px">
+                        <el-select v-model="query.categoryId" placeholder="请选择" clearable style="width: 162px">
                             <el-option
                                 v-for="item in categories"
                                 :key="item.id"
@@ -16,18 +16,8 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="状态">
-                        <el-select v-model="query.states" placeholder="请选择" clearable multiple collapse-tags style="width: 172px">
-                            <el-option
-                                v-for="item in articleStates"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item.id">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
                     <el-form-item label="类型">
-                        <el-select v-model="query.creationType" placeholder="请选择" clearable style="width: 172px">
+                        <el-select v-model="query.creationType" placeholder="请选择" clearable style="width: 162px">
                             <el-option
                                 v-for="item in creationTypes"
                                 :key="item.id"
@@ -36,10 +26,26 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item style="margin-right: 0;">
+                    <el-form-item label="状态">
+                        <el-select v-model="query.states" placeholder="请选择" clearable multiple collapse-tags style="width: 162px">
+                            <el-option
+                                v-for="item in articleStates"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
                         <el-button size="small" @click="search">查询</el-button>
                         <el-button type="primary" size="small" @click="add">新增</el-button>
                         <el-button type="primary" size="small" @click="importDialogVisible = true">导入</el-button>
+                    </el-form-item>
+                    <el-form-item label="可见性">
+                        <el-select v-model="query.visibility" placeholder="请选择" clearable style="width: 162px">
+                            <el-option :value="VISIBLE" label="正常"></el-option>
+                            <el-option :value="HIDDEN" label="已隐藏"></el-option>
+                        </el-select>
                     </el-form-item>
                 </el-form>
             </template>
@@ -65,6 +71,12 @@
                         <el-tag v-else size="small" :effect="ARTICLE_STATE_CONFIG[row.state].effect" :type="ARTICLE_STATE_CONFIG[row.state].type">{{ ARTICLE_STATE_CONFIG[row.state].text }}</el-tag>
                     </template>
                 </el-table-column>
+                <el-table-column align="center" label="可见性" prop="visibility" width="120">
+                    <template #="{ row }">
+                        <el-tag size="small" effect="dark" type="info" v-if="row.visibility === HIDDEN">{{ '已隐藏' }}</el-tag>
+                        <el-tag size="small" v-else>{{ '正常' }}</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column align="center" label="类型" prop="creationType" width="120">
                     <template #="{ row }">
                         <span>{{ CREATION_TYPE_CONFIG[row.creationType] ? CREATION_TYPE_CONFIG[row.creationType].text : "-" }}</span>
@@ -80,7 +92,12 @@
                         <span>{{ row.lastUpdatedAt }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column align="center" label="操作" fixed="right" width="180">
+                <el-table-column align="center" label="最后发布于" width="180">
+                    <template #="{ row }">
+                        <span>{{ row.lastPublishedAt || '-' }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="操作" fixed="right" width="240">
                     <template #="{ row }">
                         <el-button link size="small" v-if="row.state === PENDING" @click="submit(row)">提交审核</el-button>
                         <el-button link size="small" v-else-if="row.state === WAITING_FOR_AUDITING" @click="cancel(row)" type="warning">撤销</el-button>
@@ -88,6 +105,8 @@
                         <el-button link size="small" v-else-if="row.state === DELETED" @click="recover(row)">恢复</el-button>
                         <el-button link size="small" @click="edit(row)">编辑</el-button>
                         <el-button link class="x-el-button-text" type="danger" size="small" @click="del(row)">删除</el-button>
+                        <el-button link class="x-el-button-text" type="danger" size="small" v-if="!!row.lastPublishedAt && row.state !== DELETED && row.visibility !== HIDDEN" @click="hideArticle(row)">隐藏</el-button>
+                        <el-button link size="small" v-if="row.visibility === HIDDEN" @click="showArticle(row)">显示</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -138,7 +157,7 @@ import {
     PENDING,
     WAITING_FOR_AUDITING,
     WAITING_FOR_CONFIRMATION,
-    WAITING_FOR_PUBLICATION
+    WAITING_FOR_PUBLICATION, HIDDEN, VISIBLE
 } from "./constants";
 import { useCategory } from "@/composables/useCategory";
 import * as articleApi from "@/api/article";
@@ -264,5 +283,26 @@ async function handleUploadChange(file, files) {
 const handleRemove = (file, files) => {
     const index = articles.findIndex(item => item.uid == file.uid);
     articles.splice(index, 1);
+};
+
+const hideArticle = (row) => {
+    ElMessageBox.confirm(`确认隐藏[${row.title}], 并于下次发布删除？`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+    }).then(async () => {
+        const resp = await articleApi.hideArticle(row.id);
+        if (resp?.code === 0) {
+            ElMessage.success("操作成功");
+            row.visibility = HIDDEN;
+        }
+    });
+};
+
+const showArticle = async (row) => {
+    const resp = await articleApi.showArticle(row.id);
+    if (resp?.code === 0) {
+        ElMessage.success("操作成功");
+        row.state = PENDING;
+    }
 };
 </script>

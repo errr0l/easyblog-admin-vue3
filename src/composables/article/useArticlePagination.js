@@ -18,6 +18,7 @@ export function useArticlePagination() {
         creationType: "",
         title: "",
         states: [],
+        visibility: ""
     });
     const { list, total, fetchData, currentChange, search } = usePagination(query, articleApi.list, [stateHandler]);
 

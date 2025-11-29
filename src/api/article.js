@@ -110,3 +110,17 @@ export function importArticles(data) {
         data
     });
 }
+
+export function hideArticle(id) {
+    return request({
+        url: `/article/${id}/hide`,
+        method: 'post',
+    });
+}
+
+export function showArticle(id) {
+    return request({
+        url: `/article/${id}/show`,
+        method: 'post',
+    });
+}

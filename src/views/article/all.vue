@@ -162,15 +162,19 @@ const { audit } = useArticleNavigator();
 function setQuery() {
     query['scope'] = 'all';
     query['withAuthorName'] = true;
+    query.states.push(WAITING_FOR_AUDITING);
 }
+
 setQuery();
+
 onMounted(() => {
+    listAll();
     fetchData();
     getStatistic();
 });
 
 onActivated(() => {
-    listAll();
+    fetchData();
 });
 
 function closeDialog() {

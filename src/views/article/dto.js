@@ -11,5 +11,6 @@ export const defaultFormData = {
     creationType: ORIGINAL,
     reprintUrl: "",
     commentable: 0,
-    sort: ""
+    sort: "",
+    state: ""
 };

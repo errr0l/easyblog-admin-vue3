@@ -9,13 +9,14 @@
                         </el-input>
                     </div>
                     <div class="acts">
+                        <!-- <el-tag style="margin-right: 10px;" size="small" :effect="ARTICLE_STATE_CONFIG[articleState].effect" :type="ARTICLE_STATE_CONFIG[articleState].type">{{ ARTICLE_STATE_CONFIG[articleState].text }}</el-tag> -->
                         <el-button size="small" @click="back">返回</el-button>
                         <template v-if="_from === ARTICLE_ALL">
                             <el-button type="primary" size="small" @click="auditingDialogVisible = true">审核</el-button>
                         </template>
                         <template v-else>
                             <el-button type="primary" size="small" @click="settingsDialogVisible = true">保存</el-button>
-                            <el-button type="primary" plain size="small" @click="saveOrUpdateDraft">草稿</el-button>
+                            <el-button type="primary" plain size="small" :disabled="isHidden" @click="saveOrUpdateDraft">草稿</el-button>
                         </template>
                     </div>
                 </div>
@@ -115,7 +116,7 @@ import { ElMessage } from "element-plus";
 import "md-editor-v3/lib/style.css";
 import "md-editor-v3/lib/preview.css";
 
-import { OPINION_CONFIG, CREATION_TYPE_CONFIG, REPRINT, ORIGINAL } from "./constants";
+import { OPINION_CONFIG, CREATION_TYPE_CONFIG, REPRINT, ORIGINAL, HIDDEN } from "./constants";
 import { ARTICLE_ALL } from "@/constants/general";
 import { useTag } from "./composables/useTag";
 import { useElUpload } from "@/composables/useElUpload";
@@ -165,6 +166,8 @@ const onUploadImg = createOnUploadImg({
     pathHandler: addIdentityForImagePath,
     type: 2
 });
+// const articleState = computed(() => formData.state || '-');
+const isHidden = computed(() => formData.state === HIDDEN);
 const { createSummary } = useArticleHelper();
 // 同步cover
 watch(cover, () => {
@@ -202,6 +205,9 @@ async function create() {
 }
 
 async function saveOrUpdateDraft() {
+    if (isHidden) {
+        return;
+    }
     const resp = await (formData.id ? articleApi.updateDraft(formData) : articleApi.createDraft(formData));
     if (resp.code === 0) {
         ElMessage.success('操作成功');

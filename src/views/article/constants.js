@@ -6,6 +6,8 @@ export const WAITING_FOR_PUBLICATION = 31;
 const PUBLISHED = 4;
 const REJECTED = 5;
 export const DELETED = 6;
+export const VISIBLE = 1;
+export const HIDDEN = 2;
 
 export const ARTICLE_STATE_CONFIG = {
     [DRAFT]: {
@@ -47,7 +49,12 @@ export const ARTICLE_STATE_CONFIG = {
         type: 'info',
         text: '已删除',
         effect: 'dark'
-    }
+    },
+    // [HIDDEN]: {
+    //     type: 'info',
+    //     text: '已隐藏',
+    //     effect: 'dark'
+    // }
 };
 
 // 文章创作类型
