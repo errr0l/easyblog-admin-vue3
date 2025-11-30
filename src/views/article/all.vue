@@ -129,6 +129,10 @@
                     <el-radio v-model="publishFormData.force" :label="0">自动</el-radio>
                     <el-radio v-model="publishFormData.force" :label="1">强制</el-radio>
                 </el-form-item>
+                <el-form-item label="复制静态资源规则">
+                    <el-radio v-model="publishFormData.forceStatic" :label="0">自动</el-radio>
+                    <el-radio v-model="publishFormData.forceStatic" :label="1">强制</el-radio>
+                </el-form-item>
             </el-form>
             <div style="text-align: right;">
                 <el-button @click="publishDialogVisible = false" size="small">取消</el-button>

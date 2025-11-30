@@ -8,7 +8,8 @@ import { EXCEPTION, SUCCESS } from "@/constants/general";
 export function usePublish({ dialogVisible, progressDialogVisible }) {
     const defaultFormData = {
         toRemote: 1,
-        force: 0
+        force: 0,
+        forceStatic: 0
     };
     const formData = reactive({ ...defaultFormData });
     const defaultProgress = {

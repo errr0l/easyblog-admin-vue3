@@ -272,7 +272,7 @@ async function handleUploadChange(file, files) {
         });
     }
     const articleExample = { ...defaultArticleExample };
-    articleExample.title = title.pure || file.name;
+    articleExample.title = title?.pure || file.name.replace('.md', '');
     articleExample.summary = createSummary(content);
     articleExample.content = content;
     articleExample.uid = file.uid;
@@ -285,6 +285,7 @@ const handleRemove = (file, files) => {
     articles.splice(index, 1);
 };
 
+// 注：这里的隐藏/显示，并不会影响文章的流程，而是指发布时文章的可见性
 const hideArticle = (row) => {
     ElMessageBox.confirm(`确认隐藏[${row.title}], 并于下次发布删除？`, "提示", {
         confirmButtonText: "确定",

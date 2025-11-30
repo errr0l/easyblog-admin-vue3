@@ -16,7 +16,7 @@
                         </template>
                         <template v-else>
                             <el-button type="primary" size="small" @click="settingsDialogVisible = true">保存</el-button>
-                            <el-button type="primary" plain size="small" :disabled="isHidden" @click="saveOrUpdateDraft">草稿</el-button>
+                            <el-button type="primary" plain size="small" @click="saveOrUpdateDraft">草稿</el-button>
                         </template>
                     </div>
                 </div>
@@ -167,7 +167,7 @@ const onUploadImg = createOnUploadImg({
     type: 2
 });
 // const articleState = computed(() => formData.state || '-');
-const isHidden = computed(() => formData.state === HIDDEN);
+// const isHidden = computed(() => formData.state === HIDDEN);
 const { createSummary } = useArticleHelper();
 // 同步cover
 watch(cover, () => {
@@ -205,9 +205,9 @@ async function create() {
 }
 
 async function saveOrUpdateDraft() {
-    if (isHidden) {
-        return;
-    }
+    // if (isHidden) {
+    //     return;
+    // }
     const resp = await (formData.id ? articleApi.updateDraft(formData) : articleApi.createDraft(formData));
     if (resp.code === 0) {
         ElMessage.success('操作成功');
